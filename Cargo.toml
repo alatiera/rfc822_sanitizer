@@ -1,0 +1,7 @@
+[package]
+name = "parse_rfc822"
+version = "0.1.0"
+authors = ["Jordan Petridis <jordanpetridis@protonmail.com>"]
+
+[dependencies]
+chrono = "0.4"
