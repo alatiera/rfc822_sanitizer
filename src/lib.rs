@@ -6,7 +6,8 @@ use regex::Regex;
 
 use std::collections::HashMap;
 
-pub fn from_rfc822_to_rfc2822(s: &str) -> ParseResult<DateTime<FixedOffset>> {
+// TODO: Clean up
+pub fn rfc822_to_rfc2822_sanitize(s: &str) -> String{
     let weekdays = vec![
         "Mon,",
         "Tue,",
@@ -80,17 +81,20 @@ pub fn from_rfc822_to_rfc2822(s: &str) -> ParseResult<DateTime<FixedOffset>> {
     }
 
     // println!("{}", foo);
+    foo
+}
+
+// TODO: Setup error-chain
+pub fn from_rfc822_to_rfc2822(s: &str) -> ParseResult<DateTime<FixedOffset>> {
+    let foo = rfc822_to_rfc2822_sanitize(s);
+
     DateTime::parse_from_rfc2822(&foo)
 }
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 
     #[test]
     fn foo() {
