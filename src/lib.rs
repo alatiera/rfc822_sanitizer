@@ -7,7 +7,7 @@ use regex::Regex;
 use std::collections::HashMap;
 
 // TODO: Clean up
-pub fn rfc822_to_rfc2822_sanitize(s: &str) -> String{
+fn sanitize_rfc822_like_date(s: &str) -> String {
     let weekdays = vec![
         "Mon,",
         "Tue,",
@@ -84,11 +84,25 @@ pub fn rfc822_to_rfc2822_sanitize(s: &str) -> String{
     foo
 }
 
-// TODO: Setup error-chain
-pub fn from_rfc822_to_rfc2822(s: &str) -> ParseResult<DateTime<FixedOffset>> {
-    let foo = rfc822_to_rfc2822_sanitize(s);
-
-    DateTime::parse_from_rfc2822(&foo)
+/// World is full of broken code and invalid rfc822/rfc2822 daytimes.
+/// This function acts like the normal DateTime::parse_from_rfc2822 would at first.
+/// It calls DateTime::parse_from_rfc2822(s), if it succedes It returns the normal result,
+/// But if It fails, It will try to sanitize the String s, and fix common ways date generators
+/// misshandle rfc822/rfc2822, And it will then try to parse it again as DayTime.
+pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOffset>> {
+    let date = DateTime::parse_from_rfc2822(&s);
+    match date {
+        Ok(_) => date,
+        Err(err) => {
+            let san = sanitize_rfc822_like_date(s);
+            let dt = DateTime::parse_from_rfc2822(&san);
+            if let Ok(_) = dt {
+                return dt;
+            } else {
+                return Err(err);
+            }
+        }
+    }
 }
 
 
@@ -356,7 +370,7 @@ mod tests {
                 "15 Feb 2017 06:00:00 -0400",
             ),
         ];
-       
+
         // used printing out stuff
         // dates
         //     .iter()
@@ -365,7 +379,7 @@ mod tests {
 
         for (bad, good) in dates {
             assert_eq!(
-                from_rfc822_to_rfc2822(bad),
+                parse_from_rfc2822_with_fallback(bad),
                 DateTime::parse_from_rfc2822(good)
             )
         }

@@ -1,5 +1,5 @@
 [package]
-name = "parse_rfc822"
+name = "rfc822-like_sanitizer"
 version = "0.1.0"
 authors = ["Jordan Petridis <jordanpetridis@protonmail.com>"]
 
