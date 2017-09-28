@@ -6,6 +6,7 @@ description = "A helper funtion trying to fix invalid rfc822/2822 inputs "
 repository = "https://github.com/alatiera/rfc822_sanitizer"
 homepage = "https://github.com/alatiera/rfc822_sanitizer"
 readme = "README.md"
+license = "GPL-3.0+"
 
 [dependencies]
 chrono = "0.4"
