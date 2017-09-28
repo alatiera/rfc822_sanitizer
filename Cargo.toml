@@ -1,5 +1,5 @@
 [package]
-name = "rfc822sanitizer"
+name = "rfc822_sanitizer"
 version = "0.1.0"
 authors = ["Jordan Petridis <jordanpetridis@protonmail.com>"]
 
