@@ -1,4 +1,16 @@
 # RFC822/2822_sanitizer
+[![Travis CI][travis-image]][travis]
+[![crates.io][cratesio-image]][cratesio]
+[![docs.rs][docsrs-image]][docsrs]
+
+[travis-image]: https://travis-ci.org/alatiera/.svg?branch=master
+[travis]: https://travis-ci.org/chronotope/chrono
+[cratesio-image]: https://img.shields.io/crates/v/rfc822_sanitizer.svg
+[cratesio]: https://crates.io/crates/rfc822_sanitizer
+[docsrs-image]: https://docs.rs/rfc822_sanitizer/0.1.0/badge.svg?version=0.4.0
+[docsrs]: https://docs.rs/rfc822_sanitizer/0.1.0/
+
+
 A helper funtion trying to fix invalid rfc822/2822 inputs
 
 The world is a mess and everyone seem to reinvent daytimes.
