@@ -51,7 +51,7 @@ fn pad_zeros(s: &str) -> String {
 
     let ntime = &newtime.join(":");
     foo = foo.replace(cap.get(0).unwrap().as_str(), ntime);
-    println!("(\"{}\",\"{}\"),", s, foo);
+    // println!("(\"{}\",\"{}\"),", s, foo);
     foo
 }
 

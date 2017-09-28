@@ -1,11 +1,7 @@
 # RFC822/2822_sanitizer
-[![Travis CI][travis-image]][travis]
-[![crates.io][cratesio-image]][cratesio]
-
-[travis-image]: https://travis-ci.org/alatiera/rfc822_sanitizer.svg?branch=master
-[travis]: https://travis-ci.org/alatiera/rfc822_sanitizer
-[cratesio-image]: https://img.shields.io/crates/v/rfc822_sanitizer.svg
-[cratesio]: https://crates.io/crates/rfc822_sanitizer
+[![Build Status](https://travis-ci.org/alatiera/rfc822_sanitizer.svg?branch=master)](https://travis-ci.org/alatiera/rfc822_sanitizer)
+[![Build status](https://ci.appveyor.com/api/projects/status/1xywfcpygqxlr2ng?svg=true)](https://ci.appveyor.com/project/alatiera/rfc822-sanitizer)
+[![Crates.io](https://img.shields.io/crates/v/rfc822_sanitizer.svg)](https://crates.io/crates/rfc822_sanitizer)
 
 [Documentation](https://docs.rs/rfc822_sanitizer/0.1.1/)
 
