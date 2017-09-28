@@ -77,9 +77,7 @@ Some Optimizations are on the way.
 $ cargo bench -q
 running 4 tests
 test tests::test_invalid_dates ... ignored
-test tests::bench_correct_dates_normal_parse  ... bench:      20,958 ns/iter (+/- 896)
-test tests::bench_correct_dates_with_fallback ... bench:      21,332 ns/iter (+/- 734)
-test tests::bench_invalid_dates_normal_parse  ... bench:  16,196,318 ns/iter (+/- 348,653)
-
-test result: ok. 0 passed; 0 failed; 1 ignored; 3 measured; 0 filtered out
+test tests::bench_correct_dates_normal_parse        ... bench:      20,958 ns/iter (+/- 561)
+test tests::bench_correct_dates_with_fallback       ... bench:      21,299 ns/iter (+/- 587)
+test tests::bench_parse_invalid_dates_with_fallback ... bench:  16,232,542 ns/iter (+/- 314,063)
 ```

@@ -95,6 +95,7 @@ fn sanitize_rfc822_like_date(s: &str) -> String {
 /// It calls DateTime::parse_from_rfc2822(s), if it succedes It returns the normal result,
 /// But if It fails, It will try to sanitize the String s, and fix common ways date generators
 /// misshandle rfc822/rfc2822, And it will then try to parse it again as DayTime.
+/// BEWARE OF THE PERFORMANCE PENALTIES.
 pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOffset>> {
     let date = DateTime::parse_from_rfc2822(&s);
     match date {
@@ -549,7 +550,7 @@ mod tests {
     }
 
     #[bench]
-    fn bench_invalid_dates_normal_parse(b: &mut Bencher) {
+    fn bench_parse_invalid_dates_with_fallback(b: &mut Bencher) {
         let invalid_dates = vec![
             "Mon, 10 July 2017 16:00:00 PDT",
             "Mon, 17 July 2017 17:00:00 PDT",
