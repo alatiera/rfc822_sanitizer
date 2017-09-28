@@ -40,6 +40,12 @@ Now if we were to use the sanitizer, we would actually get a correct datetime.
 
 ## Usage:
 
+Add the following to your Cargo.toml.
+```
+[dependencies]
+chrono = "0.4"
+```
+
 ### from [`examples/simple.rs`](examples/simple.rs)
 
 ```
