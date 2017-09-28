@@ -1,8 +1,5 @@
-#![feature(test)]
-
 extern crate chrono;
 extern crate regex;
-extern crate test;
 
 use chrono::{DateTime, FixedOffset, ParseResult};
 use regex::Regex;
@@ -53,14 +50,17 @@ fn sanitize_rfc822_like_date(s: &str) -> String {
     let cap = re.captures(&s).unwrap();
     let mut newtime = Vec::new();
 
-    cap.iter().skip(1).for_each(|x| if let Some(y) = x {
-        // if y.end() - y.start() == 1 {
-        if y.as_str().len() == 1 {
-            newtime.push(format!("0{}", y.as_str()));
-        } else {
-            newtime.push(y.as_str().to_string());
-        }
-    });
+    cap.iter()
+        .skip(1)
+        .map(|x| if let Some(y) = x {
+            // if y.end() - y.start() == 1 {
+            if y.as_str().len() == 1 {
+                newtime.push(format!("0{}", y.as_str()));
+            } else {
+                newtime.push(y.as_str().to_string());
+            }
+        })
+        .fold((), |(), _| ());
 
     let ntime = &newtime.join(":");
     foo = foo.replace(cap.get(0).unwrap().as_str(), ntime);
@@ -68,17 +68,23 @@ fn sanitize_rfc822_like_date(s: &str) -> String {
     // Weekday name is not required for rfc2822
     // for stable, replace for_each with map and add
     // .fold((), |(),_|()) or .collect()
-    weekdays.iter().for_each(|x| if foo.starts_with(x) {
-        // TODO: handle to lower etc.
-        // For sure someone has a weird feed with the day in lowercase
-        foo = format!("{}", &foo[x.len()..]);
-        foo = foo.trim().to_string();
-    });
+    weekdays
+        .iter()
+        .map(|x| if foo.starts_with(x) {
+            // TODO: handle to lower etc.
+            // For sure someone has a weird feed with the day in lowercase
+            foo = format!("{}", &foo[x.len()..]);
+            foo = foo.trim().to_string();
+        })
+        .fold((), |(), _| ());
 
     // Replace long month names with 3 letter Abr.
-    months.iter().for_each(|(k, v)| if s.contains(k) {
-        foo = foo.replace(k, v);
-    });
+    months
+        .iter()
+        .map(|(k, v)| if s.contains(k) {
+            foo = foo.replace(k, v);
+        })
+        .fold((), |(), _| ());
 
     // See #102, https://github.com/chronotope/chrono/issues/102
     // Handle -0000 as +0000
@@ -116,7 +122,6 @@ pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOf
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test::Bencher;
     use chrono::DateTime;
 
     #[test]
@@ -381,7 +386,6 @@ mod tests {
         ];
 
         for (bad, good) in dates {
-
             // let f = DateTime::parse_from_rfc2822(good).unwrap();
             // println!("\"{}\",", f.to_rfc2822());
 
@@ -392,240 +396,4 @@ mod tests {
         }
     }
 
-    #[bench]
-    fn bench_correct_dates_with_fallback(b: &mut Bencher) {
-        let valid_dates = vec![
-            "Mon, 10 Jul 2017 16:00:00 -0700",
-            "Mon, 17 Jul 2017 17:00:00 -0700",
-            "Mon, 24 Jul 2017 16:00:00 -0700",
-            "Mon, 31 Jul 2017 16:00:00 -0700",
-            "Wed, 30 Aug 2017 01:30:00 -0700",
-            "Wed, 20 Sep 2017 10:00:00 +0000",
-            "Wed, 13 Sep 2017 10:00:00 +0000",
-            "Wed,  9 Aug 2017 10:00:00 +0000",
-            "Wed,  2 Aug 2017 10:00:00 +0000",
-            "Wed, 26 Jul 2017 10:00:00 +0000",
-            "Wed, 19 Jul 2017 10:00:00 +0000",
-            "Wed, 12 Jul 2017 10:00:00 +0000",
-            "Wed, 28 Jun 2017 10:00:00 +0000",
-            "Wed, 21 Jun 2017 10:00:00 +0000",
-            "Wed, 14 Jun 2017 10:00:00 +0000",
-            "Wed,  7 Jun 2017 10:00:00 +0000",
-            "Wed, 31 May 2017 10:00:00 +0000",
-            "Wed, 24 May 2017 10:00:00 +0000",
-            "Wed, 17 May 2017 10:00:00 +0000",
-            "Wed, 10 May 2017 10:00:00 +0000",
-            "Wed,  3 May 2017 10:00:00 +0000",
-            "Wed, 19 Apr 2017 10:00:00 +0000",
-            "Wed, 12 Apr 2017 10:00:00 +0000",
-            "Wed,  5 Apr 2017 10:00:00 +0000",
-            "Wed, 29 Mar 2017 10:00:00 +0000",
-            "Wed, 22 Mar 2017 10:00:00 +0000",
-            "Wed, 15 Mar 2017 10:00:00 +0000",
-            "Wed,  8 Mar 2017 11:00:00 +0000",
-            "Wed,  1 Mar 2017 11:00:00 +0000",
-            "Wed, 22 Feb 2017 11:00:00 +0000",
-            "Wed, 15 Feb 2017 11:00:00 +0000",
-            "Wed,  8 Feb 2017 11:00:00 +0000",
-            "Wed,  1 Feb 2017 11:00:00 +0000",
-            "Wed, 25 Jan 2017 11:00:00 +0000",
-            "Fri, 13 Jan 2017 18:38:00 +0000",
-            "Wed, 20 Sep 2017 03:30:00 +0000",
-            "Wed, 13 Sep 2017 03:15:00 +0000",
-            "Wed,  6 Sep 2017 03:15:00 +0000",
-            "Wed, 30 Aug 2017 03:15:00 +0000",
-            "Wed, 23 Aug 2017 03:15:00 +0000",
-            "Wed, 16 Aug 2017 03:15:00 +0000",
-            "Wed,  9 Aug 2017 03:15:00 +0000",
-            "Wed,  2 Aug 2017 03:00:00 +0000",
-            "Tue, 11 Jul 2017 17:14:45 +0000",
-            "Thu,  3 Aug 2017 06:00:00 -0400",
-            "Thu, 27 Jul 2017 06:00:00 -0400",
-            "Thu, 20 Jul 2017 06:00:00 -0400",
-            "Thu, 13 Jul 2017 06:00:00 -0400",
-            "Thu,  6 Jul 2017 06:00:00 -0400",
-            "Wed, 28 Jun 2017 06:00:00 -0400",
-            "Wed, 17 Jul 2013 06:00:03 -0400",
-            "Wed,  2 Apr 2014 06:00:03 -0400",
-            "Thu, 14 Jan 2016 06:00:03 -0400",
-            "Thu, 22 Jun 2017 06:00:00 -0400",
-            "Thu, 15 Jun 2017 06:00:00 -0400",
-            "Wed,  7 Jun 2017 06:00:00 -0400",
-            "Thu,  1 Jun 2017 06:00:00 -0400",
-            "Wed, 23 Dec 2015 06:00:03 -0400",
-            "Fri, 14 Feb 2014 06:00:03 -0400",
-            "Wed,  4 Dec 2013 06:00:03 -0400",
-            "Tue, 20 Dec 2016 06:00:00 -0400",
-            "Wed, 23 Nov 2016 06:00:00 -0400",
-            "Fri,  5 Aug 2016 06:00:00 -0400",
-            "Thu,  9 Jun 2016 12:00:00 -0400",
-            "Wed, 10 May 2017 06:00:00 -0400",
-            "Wed, 22 Feb 2017 06:00:00 -0400",
-            "Wed, 15 Feb 2017 06:00:00 -0400",
-        ];
-        b.iter(|| {
-            let _foo: Vec<_> = valid_dates
-                .iter()
-                .map(|x| parse_from_rfc2822_with_fallback(x))
-                .collect();
-        })
-    }
-
-    #[bench]
-    fn bench_correct_dates_normal_parse(b: &mut Bencher) {
-        let valid_dates = vec![
-            "Mon, 10 Jul 2017 16:00:00 -0700",
-            "Mon, 17 Jul 2017 17:00:00 -0700",
-            "Mon, 24 Jul 2017 16:00:00 -0700",
-            "Mon, 31 Jul 2017 16:00:00 -0700",
-            "Wed, 30 Aug 2017 01:30:00 -0700",
-            "Wed, 20 Sep 2017 10:00:00 +0000",
-            "Wed, 13 Sep 2017 10:00:00 +0000",
-            "Wed,  9 Aug 2017 10:00:00 +0000",
-            "Wed,  2 Aug 2017 10:00:00 +0000",
-            "Wed, 26 Jul 2017 10:00:00 +0000",
-            "Wed, 19 Jul 2017 10:00:00 +0000",
-            "Wed, 12 Jul 2017 10:00:00 +0000",
-            "Wed, 28 Jun 2017 10:00:00 +0000",
-            "Wed, 21 Jun 2017 10:00:00 +0000",
-            "Wed, 14 Jun 2017 10:00:00 +0000",
-            "Wed,  7 Jun 2017 10:00:00 +0000",
-            "Wed, 31 May 2017 10:00:00 +0000",
-            "Wed, 24 May 2017 10:00:00 +0000",
-            "Wed, 17 May 2017 10:00:00 +0000",
-            "Wed, 10 May 2017 10:00:00 +0000",
-            "Wed,  3 May 2017 10:00:00 +0000",
-            "Wed, 19 Apr 2017 10:00:00 +0000",
-            "Wed, 12 Apr 2017 10:00:00 +0000",
-            "Wed,  5 Apr 2017 10:00:00 +0000",
-            "Wed, 29 Mar 2017 10:00:00 +0000",
-            "Wed, 22 Mar 2017 10:00:00 +0000",
-            "Wed, 15 Mar 2017 10:00:00 +0000",
-            "Wed,  8 Mar 2017 11:00:00 +0000",
-            "Wed,  1 Mar 2017 11:00:00 +0000",
-            "Wed, 22 Feb 2017 11:00:00 +0000",
-            "Wed, 15 Feb 2017 11:00:00 +0000",
-            "Wed,  8 Feb 2017 11:00:00 +0000",
-            "Wed,  1 Feb 2017 11:00:00 +0000",
-            "Wed, 25 Jan 2017 11:00:00 +0000",
-            "Fri, 13 Jan 2017 18:38:00 +0000",
-            "Wed, 20 Sep 2017 03:30:00 +0000",
-            "Wed, 13 Sep 2017 03:15:00 +0000",
-            "Wed,  6 Sep 2017 03:15:00 +0000",
-            "Wed, 30 Aug 2017 03:15:00 +0000",
-            "Wed, 23 Aug 2017 03:15:00 +0000",
-            "Wed, 16 Aug 2017 03:15:00 +0000",
-            "Wed,  9 Aug 2017 03:15:00 +0000",
-            "Wed,  2 Aug 2017 03:00:00 +0000",
-            "Tue, 11 Jul 2017 17:14:45 +0000",
-            "Thu,  3 Aug 2017 06:00:00 -0400",
-            "Thu, 27 Jul 2017 06:00:00 -0400",
-            "Thu, 20 Jul 2017 06:00:00 -0400",
-            "Thu, 13 Jul 2017 06:00:00 -0400",
-            "Thu,  6 Jul 2017 06:00:00 -0400",
-            "Wed, 28 Jun 2017 06:00:00 -0400",
-            "Wed, 17 Jul 2013 06:00:03 -0400",
-            "Wed,  2 Apr 2014 06:00:03 -0400",
-            "Thu, 14 Jan 2016 06:00:03 -0400",
-            "Thu, 22 Jun 2017 06:00:00 -0400",
-            "Thu, 15 Jun 2017 06:00:00 -0400",
-            "Wed,  7 Jun 2017 06:00:00 -0400",
-            "Thu,  1 Jun 2017 06:00:00 -0400",
-            "Wed, 23 Dec 2015 06:00:03 -0400",
-            "Fri, 14 Feb 2014 06:00:03 -0400",
-            "Wed,  4 Dec 2013 06:00:03 -0400",
-            "Tue, 20 Dec 2016 06:00:00 -0400",
-            "Wed, 23 Nov 2016 06:00:00 -0400",
-            "Fri,  5 Aug 2016 06:00:00 -0400",
-            "Thu,  9 Jun 2016 12:00:00 -0400",
-            "Wed, 10 May 2017 06:00:00 -0400",
-            "Wed, 22 Feb 2017 06:00:00 -0400",
-            "Wed, 15 Feb 2017 06:00:00 -0400",
-        ];
-        b.iter(|| {
-            let _foo: Vec<_> = valid_dates
-                .iter()
-                .map(|x| DateTime::parse_from_rfc2822(x))
-                .collect();
-        })
-    }
-
-    #[bench]
-    fn bench_parse_invalid_dates_with_fallback(b: &mut Bencher) {
-        let invalid_dates = vec![
-            "Mon, 10 July 2017 16:00:00 PDT",
-            "Mon, 17 July 2017 17:00:00 PDT",
-            "Mon, 24 July 2017 16:00:00 PDT",
-            "Mon, 31 July 2017 16:00:00 PDT",
-            "Thu, 30 Aug 2017 1:30:00 PDT",
-            "Wed, 20 Sep 2017 10:00:00 -0000",
-            "Wed, 13 Sep 2017 10:00:00 -0000",
-            "Wed, 09 Aug 2017 10:00:00 -0000",
-            "Wed, 02 Aug 2017 10:00:00 -0000",
-            "Wed, 26 Jul 2017 10:00:00 -0000",
-            "Wed, 19 Jul 2017 10:00:00 -0000",
-            "Wed, 12 Jul 2017 10:00:00 -0000",
-            "Wed, 28 Jun 2017 10:00:00 -0000",
-            "Wed, 21 Jun 2017 10:00:00 -0000",
-            "Wed, 14 Jun 2017 10:00:00 -0000",
-            "Wed, 07 Jun 2017 10:00:00 -0000",
-            "Wed, 31 May 2017 10:00:00 -0000",
-            "Wed, 24 May 2017 10:00:00 -0000",
-            "Wed, 17 May 2017 10:00:00 -0000",
-            "Wed, 10 May 2017 10:00:00 -0000",
-            "Wed, 03 May 2017 10:00:00 -0000",
-            "Wed, 19 Apr 2017 10:00:00 -0000",
-            "Wed, 12 Apr 2017 10:00:00 -0000",
-            "Wed, 05 Apr 2017 10:00:00 -0000",
-            "Wed, 29 Mar 2017 10:00:00 -0000",
-            "Wed, 22 Mar 2017 10:00:00 -0000",
-            "Wed, 15 Mar 2017 10:00:00 -0000",
-            "Wed, 08 Mar 2017 11:00:00 -0000",
-            "Wed, 01 Mar 2017 11:00:00 -0000",
-            "Wed, 22 Feb 2017 11:00:00 -0000",
-            "Wed, 15 Feb 2017 11:00:00 -0000",
-            "Wed, 08 Feb 2017 11:00:00 -0000",
-            "Wed, 01 Feb 2017 11:00:00 -0000",
-            "Wed, 25 Jan 2017 11:00:00 -0000",
-            "Fri, 13 Jan 2017 18:38:00 -0000",
-            "Wed, 20 Sep 2017 03:30:00 -0000",
-            "Wed, 13 Sep 2017 03:15:00 -0000",
-            "Wed, 06 Sep 2017 03:15:00 -0000",
-            "Wed, 30 Aug 2017 03:15:00 -0000",
-            "Wed, 23 Aug 2017 03:15:00 -0000",
-            "Wed, 16 Aug 2017 03:15:00 -0000",
-            "Wed, 09 Aug 2017 03:15:00 -0000",
-            "Wed, 02 Aug 2017 03:00:00 -0000",
-            "Tue, 11 Jul 2017 17:14:45 -0000",
-            "Thu, 03 August 2017 06:00:00 -0400",
-            "Thu, 27 July 2017 06:00:00 -0400",
-            "Thu, 20 July 2017 06:00:00 -0400",
-            "Thu, 13 July 2017 06:00:00 -0400",
-            "Thu, 06 July 2017 06:00:00 -0400",
-            "Thu, 28 June 2017 06:00:00 -0400",
-            "Thu, 17 Jul 2013 06:00:03 -0400",
-            "Thu, 02 Apr 2014 06:00:03 -0400",
-            "Wed, 14 Jan 2016 06:00:03 -0400",
-            "Thu, 22 June 2017 06:00:00 -0400",
-            "Thu, 15 June 2017 06:00:00 -0400",
-            "Thu, 7 June 2017 06:00:00 -0400",
-            "Thu, 1 June 2017 06:00:00 -0400",
-            "Thu, 23 Dec 2015 06:00:03 -0400",
-            "Thu, 14 Feb 2014 06:00:03 -0400",
-            "Thu, 04 Dec 2013 06:00:03 -0400",
-            "Thu, 20 Dec 2016 06:00:00 -0400",
-            "Thu, 23 Nov 2016 06:00:00 -0400",
-            "Thu, 05 Aug 2016 06:00:00 -0400",
-            "Fri, 09 Jun 2016 12:00:00 -0400",
-            "Thu, 10 May 2017 06:00:00 -0400",
-            "Thu, 22 Feb 2017 06:00:00 -0400",
-            "Thu, 15 Feb 2017 06:00:00 -0400",
-        ];
-        b.iter(|| {
-            let _foo: Vec<_> = invalid_dates
-                .iter()
-                .map(|x| parse_from_rfc2822_with_fallback(x))
-                .collect();
-        })
-    }
 }
