@@ -22,12 +22,19 @@ pub fn sanitize_rfc822_like_date(s: &str) -> String {
 
 /// Pad HH:MM:SS with exta zeros if needed.
 fn pad_zeros(s: &str) -> String {
-    // TODO: Check if it matchers a patter of 2:2:2, and skip if it dows
+    // If it matchers a pattern of 2:2:2, return.
+    let ok = Regex::new(r"(\d{2}):(\d{2}):(\d{2})").unwrap();
+    let skip = ok.find(&s);
+    let mut foo = String::from(s);
+
+    if let Some(_) = skip {
+        return foo;
+    }
+
     let re = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})").unwrap();
     // hours, minutes, seconds = cap[1], cap[2], cap[3]
     let cap = re.captures(&s).unwrap();
     let mut newtime = Vec::new();
-    let mut foo = String::from(s);
 
     cap.iter()
         .skip(1)
@@ -65,19 +72,27 @@ fn remove_weekday(s: &str) -> String {
         "Sunday,",
     ];
 
-    let mut foo = String::from(s);
+    // IF anyone knows how to return from map like with return in the for loop,
+    // please consider opening a pull request and uncommeting the following code,
+    // or let me know with a mail or tweet.
 
-    weekdays
-        .iter()
-        .map(|x| if foo.starts_with(x) {
-            // TODO: handle to lower etc.
-            // For sure someone has a weird feed with the day in lowercase
-            foo = format!("{}", &foo[x.len()..]);
-            foo = foo.trim().to_string();
-        })
-        .fold((), |(), _| ());
+    // let mut foo = String::from(s);
+    // weekdays
+    //     .iter()
+    //     .map(|x| if foo.starts_with(x) {
+    //         foo = format!("{}", &foo[x.len()..]);
+    //         foo = foo.trim().to_string();
+    //     })
+    //     .fold((), |(), _| ());
 
-    foo
+    for d in weekdays {
+        if s.contains(&d) {
+            let foo = format!("{}", &s[d.len()..]).trim().to_string();
+            return foo;
+        }
+    }
+
+    s.to_string()
 }
 
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
@@ -96,27 +111,32 @@ fn replace_month(s: &str) -> String {
     months.insert("November", "Nov");
     months.insert("December", "Dec");
 
-    let mut foo = String::from(s);
+    // let mut foo = String::from(s);
+    // months
+    //     .iter()
+    //     .map(|(k, v)| if s.contains(k) {
+    //         foo = foo.replace(k, v);
+    //     })
+    //     .fold((), |(), _| ());
 
-    months
-        .iter()
-        .map(|(k, v)| if s.contains(k) {
-            foo = foo.replace(k, v);
-        })
-        .fold((), |(), _| ());
+    for (k, v) in months {
+        if s.contains(&k) {
+            return s.replace(&k, &v);
+        }
+    }
 
-    foo
+    s.to_string()
 }
 
 /// Convert -0000 to +0000
 /// See #102, https://github.com/chronotope/chrono/issues/102
 fn replace_leading_zeros(s: &str) -> String {
-    let mut foo = String::from(s);
-
     if s.ends_with("-0000") {
-        foo = format!("{}+0000", &foo[..foo.len() - 5]);
+        let foo = format!("{}+0000", &s[..s.len() - 5]);
+        return foo;
     }
-    foo
+
+    s.to_string()
 }
 
 /// World is full of broken code and invalid rfc822/rfc2822 daytimes.
