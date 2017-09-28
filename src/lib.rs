@@ -9,7 +9,7 @@ use std::collections::HashMap;
 // TODO: Clean up
 // TODO: Optimize
 // TODO: Setup Error-chain
-fn sanitize_rfc822_like_date(s: &str) -> String {
+pub fn sanitize_rfc822_like_date(s: &str) -> String {
     let weekdays = vec![
         "Mon,",
         "Tue,",
