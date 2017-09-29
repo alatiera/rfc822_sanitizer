@@ -9,7 +9,7 @@ A helper funtion trying to fix invalid rfc822/2822 inputs
 
 The world is a mess and everyone seem to reinvent daytimes.
 
-This crates soul purpose is to try to fix the those generators that do stuff like this:
+This crates soul purpose is to try to fix the mess of those generators that do stuff like this:
 
 `Thu, 05 Aug 2016 06:00:00 -0400`
 
@@ -49,7 +49,7 @@ Now if we were to use the sanitizer, we would actually get a correct datetime.
 Add the following to your Cargo.toml.
 ```
 [dependencies]
-chrono = "0.4"
+rfc822_sanitizer = "0.2.0"
 ```
 
 ### from [`examples/simple.rs`](examples/simple.rs)
@@ -88,8 +88,8 @@ Some Optimizations are on the way.
 ```
 $ cargo bench -q
 running 4 tests
-test tests::test_invalid_dates ... ignored
-test tests::bench_correct_dates_normal_parse        ... bench:      20,958 ns/iter (+/- 561)
-test tests::bench_correct_dates_with_fallback       ... bench:      21,299 ns/iter (+/- 587)
-test tests::bench_parse_invalid_dates_with_fallback ... bench:  16,232,542 ns/iter (+/- 314,063)
+test bench_correct_dates_normal_parse        ... bench:      21,485 ns/iter (+/- 532)
+test bench_correct_dates_with_fallback       ... bench:      21,833 ns/iter (+/- 978)
+test bench_parse_invalid_dates_with_fallback ... bench:  16,266,606 ns/iter (+/- 417,240)
+test mixed_sample_case                       ... bench:  17,296,540 ns/iter (+/- 325,132)
 ```
