@@ -13,11 +13,11 @@ matrix:
       - beta
       - nightly
 cache: cargo
-before_script:
-- export PATH="$PATH:$HOME/.cargo/bin"
-- which rustfmt || cargo install rustfmt
+# before_script:
+# - export PATH="$PATH:$HOME/.cargo/bin"
+# - which rustfmt || cargo install rustfmt-nigthly
 script:
-- cargo fmt -- --write-mode=diff
+# - cargo fmt -- --write-mode=diff
 - cargo build
 - cargo test
 - cargo doc
