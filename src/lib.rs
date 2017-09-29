@@ -6,7 +6,6 @@ use regex::Regex;
 
 use std::collections::HashMap;
 
-// TODO: Optimize
 // TODO: Setup Error-chain
 pub fn sanitize_rfc822_like_date(s: &str) -> String {
     let mut foo = String::from(s);
@@ -58,20 +57,8 @@ fn pad_zeros(s: &str) -> String {
 /// Weekday name is not required for rfc2822
 fn remove_weekday(s: &str) -> String {
     let weekdays = vec![
-        "Mon,",
-        "Tue,",
-        "Wed,",
-        "Thu,",
-        "Fri,",
-        "Sat,",
-        "Sun,",
-        "Monday,",
-        "Tuesday,",
-        "Wednesday,",
-        "Thursday,",
-        "Friday,",
-        "Saturday,",
-        "Sunday,",
+        "Mon,", "Tue,", "Wed,", "Thu,", "Fri,", "Sat,", "Sun,", "Monday,", "Tuesday,",
+        "Wednesday,", "Thursday,", "Friday,", "Saturday,", "Sunday,",
     ];
 
     // IF anyone knows how to return from map like with return in the for loop,
@@ -148,10 +135,19 @@ fn replace_leading_zeros(s: &str) -> String {
 }
 
 /// World is full of broken code and invalid rfc822/rfc2822 daytimes.
-/// This function acts like the normal DateTime::parse_from_rfc2822 would at first.
-/// It calls DateTime::parse_from_rfc2822(s), if it succedes It returns the normal result,
-/// But if It fails, It will try to sanitize the String s, and fix common ways date generators
-/// misshandle rfc822/rfc2822, And it will then try to parse it again as DayTime.
+/// Higher order function that does what you wanted not what you said!
+/// If it encounters an invalid daytime input it tries to fix it first.
+///
+/// This function acts like the normal DateTime::parse_from_rfc2822
+/// would at first.
+///
+/// It calls DateTime::parse_from_rfc2822(s), if it succedes It returns the
+/// normal result.
+///
+/// But if It fails, It will try to sanitize the String s, and fix common ways
+/// date generators misshandle rfc822/rfc2822.
+/// Then try to parse it again as DayTime.
+///
 /// BEWARE OF THE PERFORMANCE PENALTIES.
 pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOffset>> {
     let date = DateTime::parse_from_rfc2822(&s);
@@ -1565,8 +1561,6 @@ mod tests {
 
     #[test]
     fn test_replace_leading_zeroes() {
-        // Would be nice If we had more test cases,
-        // If you stuble(d) upon any online please consider opening a Pullrequest.
         let foo = vec![
             (
                 "Thu, 6 July 2017 15:30:00 PDT",
