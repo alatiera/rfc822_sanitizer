@@ -1,6 +1,6 @@
 [package]
 name = "rfc822_sanitizer"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Jordan Petridis <jordanpetridis@protonmail.com>"]
 description = "A helper funtion trying to fix invalid rfc822/2822 inputs "
 repository = "https://github.com/alatiera/rfc822_sanitizer"
@@ -12,6 +12,7 @@ license = "GPL-3.0+"
 [dependencies]
 chrono = "0.4"
 regex = "0.2"
+error-chain = "0.11.0"
 
 [badges]
 travis-ci = { repository = "alatiera/rfc822_sanitizer", branch = "master"}

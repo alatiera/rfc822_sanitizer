@@ -1,4 +1,8 @@
+#![recursion_limit = "1024"]
+
 extern crate chrono;
+#[macro_use]
+extern crate error_chain;
 extern crate regex;
 
 use chrono::{DateTime, FixedOffset, ParseResult};
@@ -6,31 +10,44 @@ use regex::Regex;
 
 use std::collections::HashMap;
 
+pub mod errors {
+    use regex;
+
+    error_chain!{
+        foreign_links  {
+            RegexError(regex::Error);
+        }
+    }
+
+}
+
+use errors::*;
+
 // TODO: Setup Error-chain
-pub fn sanitize_rfc822_like_date(s: &str) -> String {
+pub fn sanitize_rfc822_like_date(s: &str) -> Result<String> {
     let mut foo = String::from(s);
 
-    foo = pad_zeros(&foo);
+    foo = pad_zeros(&foo)?;
     foo = remove_weekday(&foo);
     foo = replace_month(&foo);
     foo = replace_leading_zeros(&foo);
 
     // println!("{}", foo);
-    foo
+    Ok(foo)
 }
 
 /// Pad HH:MM:SS with exta zeros if needed.
-fn pad_zeros(s: &str) -> String {
+fn pad_zeros(s: &str) -> Result<String> {
     // If it matchers a pattern of 2:2:2, return.
-    let ok = Regex::new(r"(\d{2}):(\d{2}):(\d{2})").unwrap();
+    let ok = Regex::new(r"(\d{2}):(\d{2}):(\d{2})")?;
     let skip = ok.find(&s);
     let mut foo = String::from(s);
 
     if let Some(_) = skip {
-        return foo;
+        return Ok(foo);
     }
 
-    let re = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})").unwrap();
+    let re = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})")?;
     // hours, minutes, seconds = cap[1], cap[2], cap[3]
     let cap = re.captures(&s).unwrap();
     let mut newtime = Vec::new();
@@ -38,12 +55,11 @@ fn pad_zeros(s: &str) -> String {
     cap.iter()
         .skip(1)
         .map(|x| if let Some(y) = x {
-            // if y.end() - y.start() == 1 {
-            if y.as_str().len() == 1 {
-                newtime.push(format!("0{}", y.as_str()));
-            } else {
-                newtime.push(y.as_str().to_string());
+            if y.end() - y.start() == 1 {
+            // if y.as_str().len() == 1 {
+                return newtime.push(format!("0{}", y.as_str()));
             }
+            return newtime.push(y.as_str().to_string());
         })
         // ignore this, it just discards the return value of map
         .fold((), |(), _| ());
@@ -51,7 +67,7 @@ fn pad_zeros(s: &str) -> String {
     let ntime = &newtime.join(":");
     foo = foo.replace(cap.get(0).unwrap().as_str(), ntime);
     // println!("(\"{}\",\"{}\"),", s, foo);
-    foo
+    Ok(foo)
 }
 
 /// Weekday name is not required for rfc2822
@@ -155,12 +171,13 @@ pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOf
         Ok(_) => date,
         Err(err) => {
             let san = sanitize_rfc822_like_date(s);
-            let dt = DateTime::parse_from_rfc2822(&san);
-            if let Ok(_) = dt {
-                return dt;
-            } else {
-                return Err(err);
+            if let Ok(z) = san {
+                let dt = DateTime::parse_from_rfc2822(&z);
+                if let Ok(_) = dt {
+                    return dt;
+                }
             }
+            Err(err)
         }
     }
 }
@@ -708,7 +725,7 @@ mod tests {
         dates
             .iter()
             .map(|&(bad, good)| {
-                assert_eq!(sanitize_rfc822_like_date(bad), good)
+                assert_eq!(sanitize_rfc822_like_date(bad).unwrap(), good)
             })
             .fold((), |(), _| ());
     }
@@ -1001,7 +1018,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(pad_zeros(bad), good))
+            .map(|&(bad, good)| assert_eq!(pad_zeros(bad).unwrap(), good))
             .fold((), |(), _| ());
     }
 
