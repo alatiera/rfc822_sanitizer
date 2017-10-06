@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/alatiera/rfc822_sanitizer/branch/master/graph/badge.svg)](https://codecov.io/gh/alatiera/rfc822_sanitizer)
 [![Dependency Status](https://dependencyci.com/github/alatiera/rfc822_sanitizer/badge)](https://dependencyci.com/github/alatiera/rfc822_sanitizer)
 
-[Documentation](https://docs.rs/rfc822_sanitizer/0.1.1/)
+[Documentation](https://docs.rs/rfc822_sanitizer/0.3.1/)
 
 A helper funtion trying to fix invalid rfc822/2822 inputs
 
@@ -51,7 +51,7 @@ Now if we were to use the sanitizer, we would actually get a correct datetime.
 Add the following to your Cargo.toml.
 ```
 [dependencies]
-rfc822_sanitizer = "0.2.0"
+rfc822_sanitizer = "0.3.1"
 ```
 
 ### from [`examples/simple.rs`](examples/simple.rs)

@@ -18,5 +18,9 @@ git = "https://github.com/rust-fuzz/libfuzzer-sys.git"
 members = ["."]
 
 [[bin]]
-name = "fuzz_target_1"
-path = "fuzz_targets/fuzz_target_1.rs"
+name = "fuzz_with_fallback"
+path = "fuzz_targets/fuzz_with_fallback.rs"
+
+[[bin]]
+name = "fuzz_string_sanitizer"
+path = "fuzz_targets/fuzz_string_sanitizer.rs"
