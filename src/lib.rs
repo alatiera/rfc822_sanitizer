@@ -77,35 +77,12 @@ fn pad_zeros(s: &str) -> Result<String> {
 
 /// Weekday name is not required for rfc2822
 fn remove_weekday(s: &str) -> String {
-    let weekdays = vec![
+    static WEEKDAYS: &[&str] = &[
         "Mon,", "Tue,", "Wed,", "Thu,", "Fri,", "Sat,", "Sun,", "Monday,", "Tuesday,",
         "Wednesday,", "Thursday,", "Friday,", "Saturday,", "Sunday,",
     ];
 
-    // IF anyone knows how to return from map like with return in the for loop,
-    // please consider opening a pull request and uncommeting the following code,
-    // or let me know with a mail or tweet.
-
-    // let mut foo = String::from(s);
-    // weekdays
-    //     .iter()
-    //     .map(|x| if foo.starts_with(x) {
-    //         foo = format!("{}", &foo[x.len()..]);
-    //         foo = foo.trim().to_string();
-    //     })
-    // ignore this, it just discards the return value of map
-    //     .fold((), |(), _| ());
-
-    // foo
-
-    for d in weekdays {
-        if s.contains(&d) {
-            let foo = format!("{}", &s[d.len()..]).trim().to_string();
-            return foo;
-        }
-    }
-
-    s.to_string()
+    WEEKDAYS.iter().find(|&w| s.starts_with(w)).map(|w| s[w.len()..].trim().to_string()).unwrap_or_else(|| s.to_string())
 }
 
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
