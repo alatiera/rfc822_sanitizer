@@ -3,6 +3,8 @@
 extern crate chrono;
 #[macro_use]
 extern crate error_chain;
+#[macro_use]
+extern crate lazy_static;
 extern crate regex;
 
 use chrono::{DateTime, FixedOffset, ParseResult};
@@ -87,38 +89,26 @@ fn remove_weekday(s: &str) -> String {
 
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
 fn replace_month(s: &str) -> String {
-    let mut months = HashMap::new();
-    months.insert("January", "Jan");
-    months.insert("February", "Feb");
-    months.insert("March", "Mar");
-    months.insert("April ", "Apr");
-    months.insert("May", "May");
-    months.insert("June", "Jun");
-    months.insert("July", "Jul");
-    months.insert("August", "Aug");
-    months.insert("September", "Sep");
-    months.insert("October", "Oct");
-    months.insert("November", "Nov");
-    months.insert("December", "Dec");
-
-    // let mut foo = String::from(s);
-    // months
-    //     .iter()
-    //     .map(|(k, v)| if s.contains(k) {
-    //         foo = foo.replace(k, v);
-    //     })
-    //     ignore this, it just discards the return value of map
-    //     .fold((), |(), _| ());
-    // println!("(\"{}\",\"{}\"),", s, foo);
-    // foo
-
-    for (k, v) in months {
-        if s.contains(&k) {
-            return s.replace(&k, &v);
-        }
+    lazy_static! {
+        static ref MONTHS: HashMap<&'static str, &'static str> = {
+            let mut months = HashMap::new();
+            months.insert("January", "Jan");
+            months.insert("February", "Feb");
+            months.insert("March", "Mar");
+            months.insert("April ", "Apr");
+            months.insert("May", "May");
+            months.insert("June", "Jun");
+            months.insert("July", "Jul");
+            months.insert("August", "Aug");
+            months.insert("September", "Sep");
+            months.insert("October", "Oct");
+            months.insert("November", "Nov");
+            months.insert("December", "Dec");
+            months
+        };
     }
 
-    s.to_string()
+    MONTHS.iter().find(|&(k, _)| s.contains(k)).map(|(k, v)| s.replace(k, v)).unwrap_or_else(|| s.to_string())
 }
 
 /// Convert -0000 to +0000
