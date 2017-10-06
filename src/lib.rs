@@ -40,40 +40,33 @@ pub fn sanitize_rfc822_like_date(s: &str) -> Result<String> {
 
 /// Pad HH:MM:SS with exta zeros if needed.
 fn pad_zeros(s: &str) -> Result<String> {
-    // If it matchers a pattern of 2:2:2, return.
-    let ok = Regex::new(r"(\d{2}):(\d{2}):(\d{2})")?;
-    let skip = ok.find(&s);
-    let mut foo = String::from(s);
+    lazy_static! {
+        /// If it matchers a pattern of 2:2:2, return.
+        static ref OK_RGX: Regex = Regex::new(r"(\d{2}):(\d{2}):(\d{2})").unwrap();
 
-    if let Some(_) = skip {
-        return Ok(foo);
+        /// hours, minutes, seconds = cap[1], cap[2], cap[3]
+        static ref RE_RGX: Regex = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})").unwrap();
     }
 
-    let re = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})")?;
-    // hours, minutes, seconds = cap[1], cap[2], cap[3]
-    let cap = re.captures(&s);
-    match cap {
-        Some(cap) => {
-            let mut newtime = Vec::new();
+    if OK_RGX.is_match(s) {
+        return Ok(s.to_string());
+    }
 
-            cap.iter()
-            .skip(1)
-            .map(|x| if let Some(y) = x {
-                if y.end() - y.start() == 1 {
-                // if y.as_str().len() == 1 {
-                    return newtime.push(format!("0{}", y.as_str()));
-                }
-                return newtime.push(y.as_str().to_string());
-            })
-            // ignore this, it just discards the return value of map
-            .fold((), |(), _| ());
-
-            let ntime = &newtime.join(":");
-            foo = foo.replace(cap.get(0).unwrap().as_str(), ntime);
-            // println!("(\"{}\",\"{}\"),", s, foo);
-            Ok(foo)
+    if let Some(cap) = RE_RGX.captures(&s) {
+        let mut tm = String::with_capacity(2 + 1 + 2 + 1 + 2 + 1);
+        for mtch in cap.iter().skip(1).filter(Option::is_some).map(Option::unwrap) {
+            let m_str = mtch.as_str();
+            if m_str.len() == 1 {
+                tm.push('0');
+            }
+            tm.push_str(m_str);
+            tm.push(':');
         }
-        _ => Ok(s.to_string()),
+        tm.pop(); // Pop leftover last separator (at no penalty, since we only allocate once either way)
+
+        Ok(s.replace(&cap[0], &tm))
+    } else {
+        Ok(s.to_string())
     }
 }
 
