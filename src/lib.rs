@@ -10,20 +10,16 @@ use regex::Regex;
 
 use std::collections::HashMap;
 
-pub fn sanitize_rfc822_like_date(s: &str) -> String {
-    let mut foo = String::from(s);
-
-    foo = pad_zeros(&foo);
-    foo = remove_weekday(&foo);
-    foo = replace_month(&foo);
-    foo = replace_leading_zeros(&foo);
-
-    // println!("{}", foo);
-    foo
+pub fn sanitize_rfc822_like_date(s: String) -> String {
+    let s = pad_zeros(s);
+    let s = remove_weekday(s);
+    let s = replace_month(s);
+    let s = replace_leading_zeros(s);
+    s
 }
 
 /// Pad HH:MM:SS with exta zeros if needed.
-fn pad_zeros(s: &str) -> String {
+fn pad_zeros(s: String) -> String {
     lazy_static! {
         /// If it matchers a pattern of 2:2:2, return.
         static ref OK_RGX: Regex = Regex::new(r"(\d{2}):(\d{2}):(\d{2})").unwrap();
@@ -32,8 +28,8 @@ fn pad_zeros(s: &str) -> String {
         static ref RE_RGX: Regex = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})").unwrap();
     }
 
-    if OK_RGX.is_match(s) {
-        return s.to_string();
+    if OK_RGX.is_match(&s) {
+        return s;
     }
 
     if let Some(cap) = RE_RGX.captures(&s) {
@@ -48,24 +44,24 @@ fn pad_zeros(s: &str) -> String {
         }
         tm.pop(); // Pop leftover last separator (at no penalty, since we only allocate once either way)
 
-        s.replace(&cap[0], &tm)
-    } else {
-        s.to_string()
+        return s.replace(&cap[0], &tm);
     }
+
+    s
 }
 
 /// Weekday name is not required for rfc2822
-fn remove_weekday(s: &str) -> String {
+fn remove_weekday(s: String) -> String {
     static WEEKDAYS: &[&str] = &[
         "Mon,", "Tue,", "Wed,", "Thu,", "Fri,", "Sat,", "Sun,", "Monday,", "Tuesday,",
         "Wednesday,", "Thursday,", "Friday,", "Saturday,", "Sunday,",
     ];
 
-    WEEKDAYS.iter().find(|&w| s.starts_with(w)).map(|w| s[w.len()..].trim().to_string()).unwrap_or_else(|| s.to_string())
+    WEEKDAYS.iter().find(|&w| s.starts_with(w)).map(|w| s[w.len()..].trim().to_string()).unwrap_or(s)
 }
 
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
-fn replace_month(s: &str) -> String {
+fn replace_month(s: String) -> String {
     lazy_static! {
         static ref MONTHS: HashMap<&'static str, &'static str> = {
             let mut months = HashMap::new();
@@ -85,16 +81,16 @@ fn replace_month(s: &str) -> String {
         };
     }
 
-    MONTHS.iter().find(|&(k, _)| s.contains(k)).map(|(k, v)| s.replace(k, v)).unwrap_or_else(|| s.to_string())
+    MONTHS.iter().find(|&(k, _)| s.contains(k)).map(|(k, v)| s.replace(k, v)).unwrap_or(s)
 }
 
 /// Convert -0000 to +0000.
 /// See [#102](https://github.com/chronotope/chrono/issues/102)
-fn replace_leading_zeros(s: &str) -> String {
+fn replace_leading_zeros(s: String) -> String {
     if s.ends_with("-0000") {
         format!("{}+0000", &s[..s.len() - 5])
     } else {
-        s.to_string()
+        s
     }
 }
 
@@ -114,11 +110,11 @@ fn replace_leading_zeros(s: &str) -> String {
 ///
 /// BEWARE OF THE PERFORMANCE PENALTIES.
 pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOffset>> {
-    let date = DateTime::parse_from_rfc2822(&s);
+    let date = DateTime::parse_from_rfc2822(s);
     match date {
         Ok(_) => date,
         Err(err) => {
-            let san = sanitize_rfc822_like_date(s);
+            let san = sanitize_rfc822_like_date(s.to_string());
             if let Ok(dt) = DateTime::parse_from_rfc2822(&san) {
                 return Ok(dt);
             }
@@ -670,7 +666,7 @@ mod tests {
         dates
             .iter()
             .map(|&(bad, good)| {
-                assert_eq!(sanitize_rfc822_like_date(bad), good)
+                assert_eq!(sanitize_rfc822_like_date(bad.to_string()), good)
             })
             .fold((), |(), _| ());
     }
@@ -947,7 +943,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(remove_weekday(bad), good))
+            .map(|&(bad, good)| assert_eq!(remove_weekday(bad.to_string()), good))
             .fold((), |(), _| ());
     }
 
@@ -963,7 +959,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(pad_zeros(bad), good))
+            .map(|&(bad, good)| assert_eq!(pad_zeros(bad.to_string()), good))
             .fold((), |(), _| ());
     }
 
@@ -1517,7 +1513,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(replace_month(bad), good))
+            .map(|&(bad, good)| assert_eq!(replace_month(bad.to_string()), good))
             .fold((), |(), _| ());
     }
 
@@ -1799,7 +1795,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(replace_leading_zeros(bad), good))
+            .map(|&(bad, good)| assert_eq!(replace_leading_zeros(bad.to_string()), good))
             .fold((), |(), _| ());
     }
 }
