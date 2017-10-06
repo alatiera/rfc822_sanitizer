@@ -49,25 +49,30 @@ fn pad_zeros(s: &str) -> Result<String> {
 
     let re = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})")?;
     // hours, minutes, seconds = cap[1], cap[2], cap[3]
-    let cap = re.captures(&s).unwrap();
-    let mut newtime = Vec::new();
+    let cap = re.captures(&s);
+    match cap {
+        Some(cap) => {
+            let mut newtime = Vec::new();
 
-    cap.iter()
-        .skip(1)
-        .map(|x| if let Some(y) = x {
-            if y.end() - y.start() == 1 {
-            // if y.as_str().len() == 1 {
-                return newtime.push(format!("0{}", y.as_str()));
-            }
-            return newtime.push(y.as_str().to_string());
-        })
-        // ignore this, it just discards the return value of map
-        .fold((), |(), _| ());
+            cap.iter()
+            .skip(1)
+            .map(|x| if let Some(y) = x {
+                if y.end() - y.start() == 1 {
+                // if y.as_str().len() == 1 {
+                    return newtime.push(format!("0{}", y.as_str()));
+                }
+                return newtime.push(y.as_str().to_string());
+            })
+            // ignore this, it just discards the return value of map
+            .fold((), |(), _| ());
 
-    let ntime = &newtime.join(":");
-    foo = foo.replace(cap.get(0).unwrap().as_str(), ntime);
-    // println!("(\"{}\",\"{}\"),", s, foo);
-    Ok(foo)
+            let ntime = &newtime.join(":");
+            foo = foo.replace(cap.get(0).unwrap().as_str(), ntime);
+            // println!("(\"{}\",\"{}\"),", s, foo);
+            Ok(foo)
+        }
+        _ => Ok(s.to_string()),
+    }
 }
 
 /// Weekday name is not required for rfc2822
