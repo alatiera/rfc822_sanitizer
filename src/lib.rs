@@ -2,8 +2,6 @@
 
 extern crate chrono;
 #[macro_use]
-extern crate error_chain;
-#[macro_use]
 extern crate lazy_static;
 extern crate regex;
 
@@ -12,34 +10,20 @@ use regex::Regex;
 
 use std::collections::HashMap;
 
-pub mod errors {
-    use regex;
-
-    error_chain!{
-        foreign_links  {
-            RegexError(regex::Error);
-        }
-    }
-
-}
-
-use errors::*;
-
-// TODO: Setup Error-chain
-pub fn sanitize_rfc822_like_date(s: &str) -> Result<String> {
+pub fn sanitize_rfc822_like_date(s: &str) -> String {
     let mut foo = String::from(s);
 
-    foo = pad_zeros(&foo)?;
+    foo = pad_zeros(&foo);
     foo = remove_weekday(&foo);
     foo = replace_month(&foo);
     foo = replace_leading_zeros(&foo);
 
     // println!("{}", foo);
-    Ok(foo)
+    foo
 }
 
 /// Pad HH:MM:SS with exta zeros if needed.
-fn pad_zeros(s: &str) -> Result<String> {
+fn pad_zeros(s: &str) -> String {
     lazy_static! {
         /// If it matchers a pattern of 2:2:2, return.
         static ref OK_RGX: Regex = Regex::new(r"(\d{2}):(\d{2}):(\d{2})").unwrap();
@@ -49,7 +33,7 @@ fn pad_zeros(s: &str) -> Result<String> {
     }
 
     if OK_RGX.is_match(s) {
-        return Ok(s.to_string());
+        return s.to_string();
     }
 
     if let Some(cap) = RE_RGX.captures(&s) {
@@ -64,9 +48,9 @@ fn pad_zeros(s: &str) -> Result<String> {
         }
         tm.pop(); // Pop leftover last separator (at no penalty, since we only allocate once either way)
 
-        Ok(s.replace(&cap[0], &tm))
+        s.replace(&cap[0], &tm)
     } else {
-        Ok(s.to_string())
+        s.to_string()
     }
 }
 
@@ -136,11 +120,8 @@ pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOf
         Ok(_) => date,
         Err(err) => {
             let san = sanitize_rfc822_like_date(s);
-            if let Ok(z) = san {
-                let dt = DateTime::parse_from_rfc2822(&z);
-                if let Ok(_) = dt {
-                    return dt;
-                }
+            if let Ok(dt) = DateTime::parse_from_rfc2822(&san) {
+                return Ok(dt);
             }
             Err(err)
         }
@@ -690,7 +671,7 @@ mod tests {
         dates
             .iter()
             .map(|&(bad, good)| {
-                assert_eq!(sanitize_rfc822_like_date(bad).unwrap(), good)
+                assert_eq!(sanitize_rfc822_like_date(bad), good)
             })
             .fold((), |(), _| ());
     }
@@ -974,7 +955,7 @@ mod tests {
     #[test]
     fn test_pad_zeros() {
         // Would be nice If we had more test cases,
-        // If you stuble(d) upon any online please consider opening a Pullrequest.
+        // If you stumble(d) upon any online please consider opening a Pullrequest.
         let foo = vec![
             (
                 "Thu, 30 Aug 2017 1:30:00 PDT",
@@ -983,7 +964,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(pad_zeros(bad).unwrap(), good))
+            .map(|&(bad, good)| assert_eq!(pad_zeros(bad), good))
             .fold((), |(), _| ());
     }
 
