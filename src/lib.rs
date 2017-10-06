@@ -98,10 +98,10 @@ fn replace_leading_zeros(s: String) -> String {
 /// Higher order function that does what you wanted not what you said!
 /// If it encounters an invalid daytime input it tries to fix it first.
 ///
-/// This function acts like the normal DateTime::parse_from_rfc2822
+/// This function acts like the normal `DateTime::parse_from_rfc2822()`
 /// would at first.
 ///
-/// It calls DateTime::parse_from_rfc2822(s), if it succedes It returns the
+/// It calls `DateTime::parse_from_rfc2822()`, if it succedes It returns the
 /// normal result.
 ///
 /// But if It fails, It will try to sanitize the String s, and fix common ways
