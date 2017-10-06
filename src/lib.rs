@@ -88,15 +88,14 @@ fn replace_month(s: &str) -> String {
     MONTHS.iter().find(|&(k, _)| s.contains(k)).map(|(k, v)| s.replace(k, v)).unwrap_or_else(|| s.to_string())
 }
 
-/// Convert -0000 to +0000
-/// See #102, https://github.com/chronotope/chrono/issues/102
+/// Convert -0000 to +0000.
+/// See [#102](https://github.com/chronotope/chrono/issues/102)
 fn replace_leading_zeros(s: &str) -> String {
     if s.ends_with("-0000") {
-        let foo = format!("{}+0000", &s[..s.len() - 5]);
-        return foo;
+        format!("{}+0000", &s[..s.len() - 5])
+    } else {
+        s.to_string()
     }
-
-    s.to_string()
 }
 
 /// World is full of broken code and invalid rfc822/rfc2822 daytimes.
