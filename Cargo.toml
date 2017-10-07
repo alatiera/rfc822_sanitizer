@@ -1,6 +1,6 @@
 [package]
 name = "rfc822_sanitizer"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Jordan Petridis <jordanpetridis@protonmail.com>"]
 description = "A helper funtion trying to fix invalid rfc822/2822 inputs "
 repository = "https://github.com/alatiera/rfc822_sanitizer"

@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/alatiera/rfc822_sanitizer/branch/master/graph/badge.svg)](https://codecov.io/gh/alatiera/rfc822_sanitizer)
 [![Dependency Status](https://dependencyci.com/github/alatiera/rfc822_sanitizer/badge)](https://dependencyci.com/github/alatiera/rfc822_sanitizer)
 
-[Documentation](https://docs.rs/rfc822_sanitizer/0.3.1/)
+[Documentation](https://docs.rs/rfc822_sanitizer/0.3.2/)
 
 A helper funtion trying to fix invalid rfc822/2822 inputs
 
@@ -51,7 +51,7 @@ Now if we were to use the sanitizer, we would actually get a correct datetime.
 Add the following to your Cargo.toml.
 ```toml
 [dependencies]
-rfc822_sanitizer = "0.3.1"
+rfc822_sanitizer = "0.3.2"
 ```
 
 ### from [`examples/simple.rs`](examples/simple.rs)
@@ -90,8 +90,8 @@ Some Optimizations are on the way.
 ```shell
 $ cargo bench -q
 running 4 tests
-test bench_correct_dates_normal_parse        ... bench:      21,485 ns/iter (+/- 532)
-test bench_correct_dates_with_fallback       ... bench:      21,833 ns/iter (+/- 978)
-test bench_parse_invalid_dates_with_fallback ... bench:  16,266,606 ns/iter (+/- 417,240)
-test mixed_sample_case                       ... bench:  17,296,540 ns/iter (+/- 325,132)
+test bench_correct_dates_normal_parse        ... bench:      20,741 ns/iter (+/- 1,000)
+test bench_correct_dates_with_fallback       ... bench:      21,133 ns/iter (+/- 282)
+test bench_parse_invalid_dates_with_fallback ... bench:     119,116 ns/iter (+/- 3,706)
+test mixed_sample_case                       ... bench:     431,814 ns/iter (+/- 8,526)
 ```
