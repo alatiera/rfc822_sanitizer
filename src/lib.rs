@@ -34,7 +34,11 @@ fn pad_zeros(s: String) -> String {
 
     if let Some(cap) = RE_RGX.captures(&s) {
         let mut tm = String::with_capacity(2 + 1 + 2 + 1 + 2 + 1);
-        for mtch in cap.iter().skip(1).filter(Option::is_some).map(Option::unwrap) {
+        for mtch in cap.iter()
+            .skip(1)
+            .filter(Option::is_some)
+            .map(Option::unwrap)
+        {
             let m_str = mtch.as_str();
             if m_str.len() == 1 {
                 tm.push('0');
@@ -42,7 +46,8 @@ fn pad_zeros(s: String) -> String {
             tm.push_str(m_str);
             tm.push(':');
         }
-        tm.pop(); // Pop leftover last separator (at no penalty, since we only allocate once either way)
+        tm.pop(); // Pop leftover last separator (at no penalty, since we only allocate once
+                  // either way)
 
         return s.replace(&cap[0], &tm);
     }
@@ -57,7 +62,11 @@ fn remove_weekday(s: String) -> String {
         "Wednesday,", "Thursday,", "Friday,", "Saturday,", "Sunday,",
     ];
 
-    WEEKDAYS.iter().find(|&w| s.starts_with(w)).map(|w| s[w.len()..].trim().to_string()).unwrap_or(s)
+    WEEKDAYS
+        .iter()
+        .find(|&w| s.starts_with(w))
+        .map(|w| s[w.len()..].trim().to_string())
+        .unwrap_or(s)
 }
 
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
@@ -81,7 +90,11 @@ fn replace_month(s: String) -> String {
         };
     }
 
-    MONTHS.iter().find(|&(k, _)| s.contains(k)).map(|(k, v)| s.replace(k, v)).unwrap_or(s)
+    MONTHS
+        .iter()
+        .find(|&(k, _)| s.contains(k))
+        .map(|(k, v)| s.replace(k, v))
+        .unwrap_or(s)
 }
 
 /// Convert -0000 to +0000.
@@ -943,7 +956,9 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(remove_weekday(bad.to_string()), good))
+            .map(|&(bad, good)| {
+                assert_eq!(remove_weekday(bad.to_string()), good)
+            })
             .fold((), |(), _| ());
     }
 
@@ -1513,7 +1528,9 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(replace_month(bad.to_string()), good))
+            .map(|&(bad, good)| {
+                assert_eq!(replace_month(bad.to_string()), good)
+            })
             .fold((), |(), _| ());
     }
 
@@ -1795,7 +1812,9 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(replace_leading_zeros(bad.to_string()), good))
+            .map(|&(bad, good)| {
+                assert_eq!(replace_leading_zeros(bad.to_string()), good)
+            })
             .fold((), |(), _| ());
     }
 }
