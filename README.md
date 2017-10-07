@@ -85,8 +85,6 @@ Ok(2017-08-30T01:30:00-07:00)
 
 Though keep in mind that it would consume more resources.
 
-Some Optimizations are on the way.
-
 ```shell
 $ cargo bench -q
 running 4 tests
