@@ -2,7 +2,7 @@
 
 extern crate chrono;
 #[macro_use]
-extern crate error_chain;
+extern crate lazy_static;
 extern crate regex;
 
 use chrono::{DateTime, FixedOffset, ParseResult};
@@ -10,159 +10,98 @@ use regex::Regex;
 
 use std::collections::HashMap;
 
-pub mod errors {
-    use regex;
-
-    error_chain!{
-        foreign_links  {
-            RegexError(regex::Error);
-        }
-    }
-
-}
-
-use errors::*;
-
-// TODO: Setup Error-chain
-pub fn sanitize_rfc822_like_date(s: &str) -> Result<String> {
-    let mut foo = String::from(s);
-
-    foo = pad_zeros(&foo)?;
-    foo = remove_weekday(&foo);
-    foo = replace_month(&foo);
-    foo = replace_leading_zeros(&foo);
-
-    // println!("{}", foo);
-    Ok(foo)
+pub fn sanitize_rfc822_like_date(s: String) -> String {
+    let s = pad_zeros(s);
+    let s = remove_weekday(s);
+    let s = replace_month(s);
+    let s = replace_leading_zeros(s);
+    s
 }
 
 /// Pad HH:MM:SS with exta zeros if needed.
-fn pad_zeros(s: &str) -> Result<String> {
-    // If it matchers a pattern of 2:2:2, return.
-    let ok = Regex::new(r"(\d{2}):(\d{2}):(\d{2})")?;
-    let skip = ok.find(&s);
-    let mut foo = String::from(s);
+fn pad_zeros(s: String) -> String {
+    lazy_static! {
+        /// If it matchers a pattern of 2:2:2, return.
+        static ref OK_RGX: Regex = Regex::new(r"(\d{2}):(\d{2}):(\d{2})").unwrap();
 
-    if let Some(_) = skip {
-        return Ok(foo);
+        /// hours, minutes, seconds = cap[1], cap[2], cap[3]
+        static ref RE_RGX: Regex = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})").unwrap();
     }
 
-    let re = Regex::new(r"(\d{1,2}):(\d{1,2}):(\d{1,2})")?;
-    // hours, minutes, seconds = cap[1], cap[2], cap[3]
-    let cap = re.captures(&s);
-    match cap {
-        Some(cap) => {
-            let mut newtime = Vec::new();
+    if OK_RGX.is_match(&s) {
+        return s;
+    }
 
-            cap.iter()
-            .skip(1)
-            .map(|x| if let Some(y) = x {
-                if y.end() - y.start() == 1 {
-                // if y.as_str().len() == 1 {
-                    return newtime.push(format!("0{}", y.as_str()));
-                }
-                return newtime.push(y.as_str().to_string());
-            })
-            // ignore this, it just discards the return value of map
-            .fold((), |(), _| ());
-
-            let ntime = &newtime.join(":");
-            foo = foo.replace(cap.get(0).unwrap().as_str(), ntime);
-            // println!("(\"{}\",\"{}\"),", s, foo);
-            Ok(foo)
+    if let Some(cap) = RE_RGX.captures(&s) {
+        let mut tm = String::with_capacity(2 + 1 + 2 + 1 + 2 + 1);
+        for mtch in cap.iter().skip(1).filter(Option::is_some).map(Option::unwrap) {
+            let m_str = mtch.as_str();
+            if m_str.len() == 1 {
+                tm.push('0');
+            }
+            tm.push_str(m_str);
+            tm.push(':');
         }
-        _ => Ok(s.to_string()),
+        tm.pop(); // Pop leftover last separator (at no penalty, since we only allocate once either way)
+
+        return s.replace(&cap[0], &tm);
     }
+
+    s
 }
 
 /// Weekday name is not required for rfc2822
-fn remove_weekday(s: &str) -> String {
-    let weekdays = vec![
+fn remove_weekday(s: String) -> String {
+    static WEEKDAYS: &[&str] = &[
         "Mon,", "Tue,", "Wed,", "Thu,", "Fri,", "Sat,", "Sun,", "Monday,", "Tuesday,",
         "Wednesday,", "Thursday,", "Friday,", "Saturday,", "Sunday,",
     ];
 
-    // IF anyone knows how to return from map like with return in the for loop,
-    // please consider opening a pull request and uncommeting the following code,
-    // or let me know with a mail or tweet.
-
-    // let mut foo = String::from(s);
-    // weekdays
-    //     .iter()
-    //     .map(|x| if foo.starts_with(x) {
-    //         foo = format!("{}", &foo[x.len()..]);
-    //         foo = foo.trim().to_string();
-    //     })
-    // ignore this, it just discards the return value of map
-    //     .fold((), |(), _| ());
-
-    // foo
-
-    for d in weekdays {
-        if s.contains(&d) {
-            let foo = format!("{}", &s[d.len()..]).trim().to_string();
-            return foo;
-        }
-    }
-
-    s.to_string()
+    WEEKDAYS.iter().find(|&w| s.starts_with(w)).map(|w| s[w.len()..].trim().to_string()).unwrap_or(s)
 }
 
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
-fn replace_month(s: &str) -> String {
-    let mut months = HashMap::new();
-    months.insert("January", "Jan");
-    months.insert("February", "Feb");
-    months.insert("March", "Mar");
-    months.insert("April ", "Apr");
-    months.insert("May", "May");
-    months.insert("June", "Jun");
-    months.insert("July", "Jul");
-    months.insert("August", "Aug");
-    months.insert("September", "Sep");
-    months.insert("October", "Oct");
-    months.insert("November", "Nov");
-    months.insert("December", "Dec");
-
-    // let mut foo = String::from(s);
-    // months
-    //     .iter()
-    //     .map(|(k, v)| if s.contains(k) {
-    //         foo = foo.replace(k, v);
-    //     })
-    //     ignore this, it just discards the return value of map
-    //     .fold((), |(), _| ());
-    // println!("(\"{}\",\"{}\"),", s, foo);
-    // foo
-
-    for (k, v) in months {
-        if s.contains(&k) {
-            return s.replace(&k, &v);
-        }
+fn replace_month(s: String) -> String {
+    lazy_static! {
+        static ref MONTHS: HashMap<&'static str, &'static str> = {
+            let mut months = HashMap::new();
+            months.insert("January", "Jan");
+            months.insert("February", "Feb");
+            months.insert("March", "Mar");
+            months.insert("April ", "Apr");
+            months.insert("May", "May");
+            months.insert("June", "Jun");
+            months.insert("July", "Jul");
+            months.insert("August", "Aug");
+            months.insert("September", "Sep");
+            months.insert("October", "Oct");
+            months.insert("November", "Nov");
+            months.insert("December", "Dec");
+            months
+        };
     }
 
-    s.to_string()
+    MONTHS.iter().find(|&(k, _)| s.contains(k)).map(|(k, v)| s.replace(k, v)).unwrap_or(s)
 }
 
-/// Convert -0000 to +0000
-/// See #102, https://github.com/chronotope/chrono/issues/102
-fn replace_leading_zeros(s: &str) -> String {
+/// Convert -0000 to +0000.
+/// See [#102](https://github.com/chronotope/chrono/issues/102)
+fn replace_leading_zeros(s: String) -> String {
     if s.ends_with("-0000") {
-        let foo = format!("{}+0000", &s[..s.len() - 5]);
-        return foo;
+        format!("{}+0000", &s[..s.len() - 5])
+    } else {
+        s
     }
-
-    s.to_string()
 }
 
 /// World is full of broken code and invalid rfc822/rfc2822 daytimes.
 /// Higher order function that does what you wanted not what you said!
 /// If it encounters an invalid daytime input it tries to fix it first.
 ///
-/// This function acts like the normal DateTime::parse_from_rfc2822
+/// This function acts like the normal `DateTime::parse_from_rfc2822()`
 /// would at first.
 ///
-/// It calls DateTime::parse_from_rfc2822(s), if it succedes It returns the
+/// It calls `DateTime::parse_from_rfc2822()`, if it succedes It returns the
 /// normal result.
 ///
 /// But if It fails, It will try to sanitize the String s, and fix common ways
@@ -171,16 +110,13 @@ fn replace_leading_zeros(s: &str) -> String {
 ///
 /// BEWARE OF THE PERFORMANCE PENALTIES.
 pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOffset>> {
-    let date = DateTime::parse_from_rfc2822(&s);
+    let date = DateTime::parse_from_rfc2822(s);
     match date {
         Ok(_) => date,
         Err(err) => {
-            let san = sanitize_rfc822_like_date(s);
-            if let Ok(z) = san {
-                let dt = DateTime::parse_from_rfc2822(&z);
-                if let Ok(_) = dt {
-                    return dt;
-                }
+            let san = sanitize_rfc822_like_date(s.to_string());
+            if let Ok(dt) = DateTime::parse_from_rfc2822(&san) {
+                return Ok(dt);
             }
             Err(err)
         }
@@ -730,7 +666,7 @@ mod tests {
         dates
             .iter()
             .map(|&(bad, good)| {
-                assert_eq!(sanitize_rfc822_like_date(bad).unwrap(), good)
+                assert_eq!(sanitize_rfc822_like_date(bad.to_string()), good)
             })
             .fold((), |(), _| ());
     }
@@ -1007,14 +943,14 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(remove_weekday(bad), good))
+            .map(|&(bad, good)| assert_eq!(remove_weekday(bad.to_string()), good))
             .fold((), |(), _| ());
     }
 
     #[test]
     fn test_pad_zeros() {
         // Would be nice If we had more test cases,
-        // If you stuble(d) upon any online please consider opening a Pullrequest.
+        // If you stumble(d) upon any online please consider opening a Pullrequest.
         let foo = vec![
             (
                 "Thu, 30 Aug 2017 1:30:00 PDT",
@@ -1023,7 +959,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(pad_zeros(bad).unwrap(), good))
+            .map(|&(bad, good)| assert_eq!(pad_zeros(bad.to_string()), good))
             .fold((), |(), _| ());
     }
 
@@ -1577,7 +1513,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(replace_month(bad), good))
+            .map(|&(bad, good)| assert_eq!(replace_month(bad.to_string()), good))
             .fold((), |(), _| ());
     }
 
@@ -1859,7 +1795,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(replace_leading_zeros(bad), good))
+            .map(|&(bad, good)| assert_eq!(replace_leading_zeros(bad.to_string()), good))
             .fold((), |(), _| ());
     }
 }

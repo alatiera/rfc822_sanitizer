@@ -12,7 +12,7 @@ license = "GPL-3.0+"
 [dependencies]
 chrono = "0.4"
 regex = "0.2"
-error-chain = "0.11.0"
+lazy_static = "0.2.9"
 
 [badges]
 travis-ci = { repository = "alatiera/rfc822_sanitizer", branch = "master"}
