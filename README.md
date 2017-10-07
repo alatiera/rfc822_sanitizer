@@ -25,7 +25,7 @@ All of the above look fine at first glance. But all are invalid and would fail t
 
 Playground [link](https://play.rust-lang.org/?gist=52016537b3af751812d172d0c29ea399&version=stable).
 
-```
+```rust
 Err(ParseError(Impossible))
 Err(ParseError(Invalid))
 Err(ParseError(NotEnough))
@@ -42,21 +42,21 @@ Err(ParseError(Invalid))
 
 The dates above have been encountered while trying to parse rss feeds from the wild west eer A Internet.
 
-The [RSS spec](http://www.rssboard.org/rss-specification#optionalChannelElements) specifies the use  of RFC822 for the date format, which is forward compatible with RFC2822. This crate proves that people/generators still get wrong a format witch was published in 1982.
+The [RSS spec](http://www.rssboard.org/rss-specification#optionalChannelElements) specifies the use of RFC822 for the date format, which is forward compatible with RFC2822. This crate proves that people/generators still get wrong a format witch was published in 1982.
 
 Now if we were to use the sanitizer, we would actually get a correct datetime.
 
 ## Usage:
 
 Add the following to your Cargo.toml.
-```
+```toml
 [dependencies]
 rfc822_sanitizer = "0.3.1"
 ```
 
 ### from [`examples/simple.rs`](examples/simple.rs)
 
-```
+```rust
 extern crate rfc822_sanitizer;
 use rfc822_sanitizer::parse_from_rfc2822_with_fallback;
 
@@ -76,7 +76,7 @@ fn main() {
 ```
 
 Output:
-```
+```rust
 Ok(2016-08-05T06:00:00-04:00)
 Ok(2017-07-31T16:00:00-07:00)
 Ok(2017-09-20T10:00:00+00:00)
@@ -87,7 +87,7 @@ Though keep in mind that it would consume more resources.
 
 Some Optimizations are on the way.
 
-```
+```shell
 $ cargo bench -q
 running 4 tests
 test bench_correct_dates_normal_parse        ... bench:      21,485 ns/iter (+/- 532)
