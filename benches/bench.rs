@@ -48,7 +48,7 @@ fn bench_correct_dates_with_fallback(b: &mut Bencher) {
     b.iter(|| {
         let _foo: Vec<_> = valid_dates
             .iter()
-            .map(|x| parse_from_rfc2822_with_fallback(&x))
+            .map(|x| parse_from_rfc2822_with_fallback(x))
             .collect();
     })
 }
@@ -140,7 +140,7 @@ fn bench_parse_invalid_dates_with_fallback(b: &mut Bencher) {
     b.iter(|| {
         let _foo: Vec<_> = invalid_dates
             .iter()
-            .map(|x| parse_from_rfc2822_with_fallback(&x))
+            .map(|x| parse_from_rfc2822_with_fallback(x))
             .collect();
     })
 }
@@ -675,7 +675,7 @@ fn mixed_sample_case(b: &mut Bencher) {
     b.iter(|| {
         let _foo: Vec<_> = mixed_dates
             .iter()
-            .map(|x| parse_from_rfc2822_with_fallback(&x))
+            .map(|x| parse_from_rfc2822_with_fallback(x))
             .collect();
     })
 }
