@@ -6,11 +6,11 @@ extern crate lazy_static;
 extern crate regex;
 
 use chrono::{DateTime, FixedOffset, ParseResult};
+use std::borrow::Cow;
 use regex::Regex;
 
-use std::collections::HashMap;
-
-pub fn sanitize_rfc822_like_date(s: String) -> String {
+pub fn sanitize_rfc822_like_date<S: Into<String>>(s: S) -> String {
+    let s = s.into();
     let s = pad_zeros(s);
     let s = remove_weekday(s);
     let s = replace_month(s);
@@ -36,8 +36,7 @@ fn pad_zeros(s: String) -> String {
         let mut tm = String::with_capacity(2 + 1 + 2 + 1 + 2 + 1);
         for mtch in cap.iter()
             .skip(1)
-            .filter(Option::is_some)
-            .map(Option::unwrap)
+            .filter_map(|m| m)
         {
             let m_str = mtch.as_str();
             if m_str.len() == 1 {
@@ -71,29 +70,25 @@ fn remove_weekday(s: String) -> String {
 
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
 fn replace_month(s: String) -> String {
-    lazy_static! {
-        static ref MONTHS: HashMap<&'static str, &'static str> = {
-            let mut months = HashMap::new();
-            months.insert("January", "Jan");
-            months.insert("February", "Feb");
-            months.insert("March", "Mar");
-            months.insert("April ", "Apr");
-            months.insert("May", "May");
-            months.insert("June", "Jun");
-            months.insert("July", "Jul");
-            months.insert("August", "Aug");
-            months.insert("September", "Sep");
-            months.insert("October", "Oct");
-            months.insert("November", "Nov");
-            months.insert("December", "Dec");
-            months
-        };
-    }
+    static MONTHS: &[(&str, &str)] = &[
+        ("January", "Jan"),
+        ("February", "Feb"),
+        ("March", "Mar"),
+        ("April ", "Apr"),
+        ("May", "May"),
+        ("June", "Jun"),
+        ("July", "Jul"),
+        ("August", "Aug"),
+        ("September", "Sep"),
+        ("October", "Oct"),
+        ("November", "Nov"),
+        ("December", "Dec"),
+    ];
 
     MONTHS
         .iter()
-        .find(|&(k, _)| s.contains(k))
-        .map(|(k, v)| s.replace(k, v))
+        .find(|&&(k, _)| s.contains(k))
+        .map(|&(k, v)| s.replace(k, v))
         .unwrap_or(s)
 }
 
@@ -120,14 +115,13 @@ fn replace_leading_zeros(s: String) -> String {
 /// But if It fails, It will try to sanitize the String s, and fix common ways
 /// date generators misshandle rfc822/rfc2822.
 /// Then try to parse it again as DayTime.
-///
-/// BEWARE OF THE PERFORMANCE PENALTIES.
-pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOffset>> {
-    let date = DateTime::parse_from_rfc2822(s);
+pub fn parse_from_rfc2822_with_fallback<'s, S: Into<Cow<'s, str>>>(s: S) -> ParseResult<DateTime<FixedOffset>> {
+    let s = s.into();
+    let date = DateTime::parse_from_rfc2822(&s);
     match date {
         Ok(_) => date,
         Err(err) => {
-            let san = sanitize_rfc822_like_date(s.to_string());
+            let san = sanitize_rfc822_like_date(s);
             if let Ok(dt) = DateTime::parse_from_rfc2822(&san) {
                 return Ok(dt);
             }
