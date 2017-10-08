@@ -34,10 +34,7 @@ fn pad_zeros(s: String) -> String {
 
     if let Some(cap) = RE_RGX.captures(&s) {
         let mut tm = String::with_capacity(2 + 1 + 2 + 1 + 2 + 1);
-        for mtch in cap.iter()
-            .skip(1)
-            .filter_map(|m| m)
-        {
+        for mtch in cap.iter().skip(1).filter_map(|m| m) {
             let m_str = mtch.as_str();
             if m_str.len() == 1 {
                 tm.push('0');
@@ -71,18 +68,9 @@ fn remove_weekday(s: String) -> String {
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
 fn replace_month(s: String) -> String {
     static MONTHS: &[(&str, &str)] = &[
-        ("January", "Jan"),
-        ("February", "Feb"),
-        ("March", "Mar"),
-        ("April ", "Apr"),
-        ("May", "May"),
-        ("June", "Jun"),
-        ("July", "Jul"),
-        ("August", "Aug"),
-        ("September", "Sep"),
-        ("October", "Oct"),
-        ("November", "Nov"),
-        ("December", "Dec"),
+        ("January", "Jan"), ("February", "Feb"), ("March", "Mar"), ("April ", "Apr"),
+        ("May", "May"), ("June", "Jun"), ("July", "Jul"), ("August", "Aug"), ("September", "Sep"),
+        ("October", "Oct"), ("November", "Nov"), ("December", "Dec"),
     ];
 
     MONTHS
@@ -115,7 +103,9 @@ fn replace_leading_zeros(s: String) -> String {
 /// But if It fails, It will try to sanitize the String s, and fix common ways
 /// date generators misshandle rfc822/rfc2822.
 /// Then try to parse it again as DayTime.
-pub fn parse_from_rfc2822_with_fallback<'s, S: Into<Cow<'s, str>>>(s: S) -> ParseResult<DateTime<FixedOffset>> {
+pub fn parse_from_rfc2822_with_fallback<'s, S: Into<Cow<'s, str>>>(
+    s: S,
+) -> ParseResult<DateTime<FixedOffset>> {
     let s = s.into();
     let date = DateTime::parse_from_rfc2822(&s);
     match date {
