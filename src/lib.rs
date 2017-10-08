@@ -36,8 +36,7 @@ fn pad_zeros(s: String) -> String {
         let mut tm = String::with_capacity(2 + 1 + 2 + 1 + 2 + 1);
         for mtch in cap.iter()
             .skip(1)
-            .filter(Option::is_some)
-            .map(Option::unwrap)
+            .filter_map(|m| m)
         {
             let m_str = mtch.as_str();
             if m_str.len() == 1 {
