@@ -8,8 +8,6 @@ extern crate regex;
 use chrono::{DateTime, FixedOffset, ParseResult};
 use regex::Regex;
 
-use std::collections::HashMap;
-
 pub fn sanitize_rfc822_like_date(s: String) -> String {
     let s = pad_zeros(s);
     let s = remove_weekday(s);
@@ -70,29 +68,25 @@ fn remove_weekday(s: String) -> String {
 
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
 fn replace_month(s: String) -> String {
-    lazy_static! {
-        static ref MONTHS: HashMap<&'static str, &'static str> = {
-            let mut months = HashMap::new();
-            months.insert("January", "Jan");
-            months.insert("February", "Feb");
-            months.insert("March", "Mar");
-            months.insert("April ", "Apr");
-            months.insert("May", "May");
-            months.insert("June", "Jun");
-            months.insert("July", "Jul");
-            months.insert("August", "Aug");
-            months.insert("September", "Sep");
-            months.insert("October", "Oct");
-            months.insert("November", "Nov");
-            months.insert("December", "Dec");
-            months
-        };
-    }
+    static MONTHS: &[(&str, &str)] = &[
+        ("January", "Jan"),
+        ("February", "Feb"),
+        ("March", "Mar"),
+        ("April ", "Apr"),
+        ("May", "May"),
+        ("June", "Jun"),
+        ("July", "Jul"),
+        ("August", "Aug"),
+        ("September", "Sep"),
+        ("October", "Oct"),
+        ("November", "Nov"),
+        ("December", "Dec"),
+    ];
 
     MONTHS
         .iter()
-        .find(|&(k, _)| s.contains(k))
-        .map(|(k, v)| s.replace(k, v))
+        .find(|&&(k, _)| s.contains(k))
+        .map(|&(k, v)| s.replace(k, v))
         .unwrap_or(s)
 }
 
