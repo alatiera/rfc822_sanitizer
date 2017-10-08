@@ -607,37 +607,29 @@ static MIXED_DATES: &[&str] = &[
 
 #[bench]
 fn bench_correct_dates_with_fallback(b: &mut Bencher) {
-    b.iter(|| {
-        for d in VALID_DATES {
-            parse_from_rfc2822_with_fallback(d)
-        }
+    b.iter(|| for &d in VALID_DATES {
+        parse_from_rfc2822_with_fallback(d);
     })
 }
 
 #[bench]
 fn bench_correct_dates_normal_parse(b: &mut Bencher) {
-    b.iter(|| {
-        for d in VALID_DATES {
-            DateTime::parse_from_rfc2822(d)
-        }
+    b.iter(|| for &d in VALID_DATES {
+        DateTime::parse_from_rfc2822(d);
     })
 }
 
 #[bench]
 fn bench_parse_invalid_dates_with_fallback(b: &mut Bencher) {
-    b.iter(|| {
-        for d in INVALID_DATES {
-            parse_from_rfc2822_with_fallback(d)
-        }
+    b.iter(|| for &d in INVALID_DATES {
+        parse_from_rfc2822_with_fallback(d);
     })
 }
 
 #[bench]
 /// Used for performance benchmarking
 fn mixed_sample_case(b: &mut Bencher) {
-    b.iter(|| {
-        for d in MIXED_DATES {
-            parse_from_rfc2822_with_fallback(d)
-        }
+    b.iter(|| for &d in MIXED_DATES {
+        parse_from_rfc2822_with_fallback(d);
     })
 }
