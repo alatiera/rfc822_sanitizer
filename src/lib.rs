@@ -8,7 +8,8 @@ extern crate regex;
 use chrono::{DateTime, FixedOffset, ParseResult};
 use regex::Regex;
 
-pub fn sanitize_rfc822_like_date(s: String) -> String {
+pub fn sanitize_rfc822_like_date<S: Into<String>>(s: S) -> String {
+    let s = s.into();
     let s = pad_zeros(s);
     let s = remove_weekday(s);
     let s = replace_month(s);
@@ -120,7 +121,7 @@ pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOf
     match date {
         Ok(_) => date,
         Err(err) => {
-            let san = sanitize_rfc822_like_date(s.to_string());
+            let san = sanitize_rfc822_like_date(s);
             if let Ok(dt) = DateTime::parse_from_rfc2822(&san) {
                 return Ok(dt);
             }
