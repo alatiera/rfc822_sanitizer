@@ -9,7 +9,7 @@ fn main() {
         "30 Aug 2017 1:30:00 PDT",
     ];
 
-    for date in &dates {
+    for date in dates {
         let fallback = parse_from_rfc2822_with_fallback(date);
         println!("{:?}", fallback);
     }

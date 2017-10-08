@@ -6,6 +6,7 @@ extern crate lazy_static;
 extern crate regex;
 
 use chrono::{DateTime, FixedOffset, ParseResult};
+use std::borrow::Cow;
 use regex::Regex;
 
 pub fn sanitize_rfc822_like_date<S: Into<String>>(s: S) -> String {
@@ -114,10 +115,9 @@ fn replace_leading_zeros(s: String) -> String {
 /// But if It fails, It will try to sanitize the String s, and fix common ways
 /// date generators misshandle rfc822/rfc2822.
 /// Then try to parse it again as DayTime.
-///
-/// BEWARE OF THE PERFORMANCE PENALTIES.
-pub fn parse_from_rfc2822_with_fallback(s: &str) -> ParseResult<DateTime<FixedOffset>> {
-    let date = DateTime::parse_from_rfc2822(s);
+pub fn parse_from_rfc2822_with_fallback<'s, S: Into<Cow<'s, str>>>(s: S) -> ParseResult<DateTime<FixedOffset>> {
+    let s = s.into();
+    let date = DateTime::parse_from_rfc2822(&s);
     match date {
         Ok(_) => date,
         Err(err) => {
