@@ -54,8 +54,20 @@ fn pad_zeros(s: String) -> String {
 /// Weekday name is not required for rfc2822
 fn remove_weekday(s: String) -> String {
     static WEEKDAYS: &[&str] = &[
-        "Mon,", "Tue,", "Wed,", "Thu,", "Fri,", "Sat,", "Sun,", "Monday,", "Tuesday,",
-        "Wednesday,", "Thursday,", "Friday,", "Saturday,", "Sunday,",
+        "Mon,",
+        "Tue,",
+        "Wed,",
+        "Thu,",
+        "Fri,",
+        "Sat,",
+        "Sun,",
+        "Monday,",
+        "Tuesday,",
+        "Wednesday,",
+        "Thursday,",
+        "Friday,",
+        "Saturday,",
+        "Sunday,",
     ];
 
     WEEKDAYS
@@ -68,9 +80,18 @@ fn remove_weekday(s: String) -> String {
 /// Replace long month names with 3 letter Abr as specified in RFC2822.
 fn replace_month(s: String) -> String {
     static MONTHS: &[(&str, &str)] = &[
-        ("January", "Jan"), ("February", "Feb"), ("March", "Mar"), ("April ", "Apr"),
-        ("May", "May"), ("June", "Jun"), ("July", "Jul"), ("August", "Aug"), ("September", "Sep"),
-        ("October", "Oct"), ("November", "Nov"), ("December", "Dec"),
+        ("January", "Jan"),
+        ("February", "Feb"),
+        ("March", "Mar"),
+        ("April ", "Apr"),
+        ("May", "May"),
+        ("June", "Jun"),
+        ("July", "Jul"),
+        ("August", "Aug"),
+        ("September", "Sep"),
+        ("October", "Oct"),
+        ("November", "Nov"),
+        ("December", "Dec"),
     ];
 
     MONTHS
