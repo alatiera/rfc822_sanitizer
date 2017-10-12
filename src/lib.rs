@@ -34,14 +34,14 @@ fn pad_zeros(s: String) -> String {
 
     if let Some(cap) = RE_RGX.captures(&s) {
         let mut tm = String::with_capacity(2 + 1 + 2 + 1 + 2 + 1);
-        for mtch in cap.iter().skip(1).filter_map(|m| m) {
+        cap.iter().skip(1).filter_map(|m| m).for_each(|mtch| {
             let m_str = mtch.as_str();
             if m_str.len() == 1 {
                 tm.push('0');
             }
             tm.push_str(m_str);
             tm.push(':');
-        }
+        });
         tm.pop(); // Pop leftover last separator (at no penalty, since we only allocate once
                   // either way)
 
@@ -387,15 +387,12 @@ mod tests {
             ),
         ];
 
-        dates
-            .iter()
-            .map(|&(bad, good)| {
-                assert_eq!(
-                    parse_from_rfc2822_with_fallback(bad),
-                    DateTime::parse_from_rfc2822(good)
-                )
-            })
-            .fold((), |(), _| ());
+        dates.iter().for_each(|&(bad, good)| {
+            assert_eq!(
+                parse_from_rfc2822_with_fallback(bad),
+                DateTime::parse_from_rfc2822(good)
+            )
+        });
     }
 
 
@@ -660,12 +657,9 @@ mod tests {
             ),
         ];
 
-        dates
-            .iter()
-            .map(|&(bad, good)| {
-                assert_eq!(sanitize_rfc822_like_date(bad.to_string()), good)
-            })
-            .fold((), |(), _| ());
+        dates.iter().for_each(|&(bad, good)| {
+            assert_eq!(sanitize_rfc822_like_date(bad.to_string()), good)
+        });
     }
 
     #[test]
@@ -939,11 +933,9 @@ mod tests {
             ),
         ];
 
-        foo.iter()
-            .map(|&(bad, good)| {
-                assert_eq!(remove_weekday(bad.to_string()), good)
-            })
-            .fold((), |(), _| ());
+        foo.iter().for_each(|&(bad, good)| {
+            assert_eq!(remove_weekday(bad.to_string()), good)
+        });
     }
 
     #[test]
@@ -958,8 +950,7 @@ mod tests {
         ];
 
         foo.iter()
-            .map(|&(bad, good)| assert_eq!(pad_zeros(bad.to_string()), good))
-            .fold((), |(), _| ());
+            .for_each(|&(bad, good)| assert_eq!(pad_zeros(bad.to_string()), good));
     }
 
     #[test]
@@ -1511,11 +1502,9 @@ mod tests {
             ),
         ];
 
-        foo.iter()
-            .map(|&(bad, good)| {
-                assert_eq!(replace_month(bad.to_string()), good)
-            })
-            .fold((), |(), _| ());
+        foo.iter().for_each(|&(bad, good)| {
+            assert_eq!(replace_month(bad.to_string()), good)
+        });
     }
 
     #[test]
@@ -1795,10 +1784,8 @@ mod tests {
             ),
         ];
 
-        foo.iter()
-            .map(|&(bad, good)| {
-                assert_eq!(replace_leading_zeros(bad.to_string()), good)
-            })
-            .fold((), |(), _| ());
+        foo.iter().for_each(|&(bad, good)| {
+            assert_eq!(replace_leading_zeros(bad.to_string()), good)
+        });
     }
 }
