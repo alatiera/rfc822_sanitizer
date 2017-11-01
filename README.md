@@ -7,11 +7,13 @@
 
 [Documentation](https://docs.rs/rfc822_sanitizer/0.3.2/)
 
-A helper funtion trying to fix invalid rfc822/2822 inputs
+A helper funtion that does what you wanted not what you said!
 
-The world is a mess and everyone seem to reinvent daytimes.
+The world is full of broken code and everyone seem to reinvent daytimes.
 
-This crates soul purpose is to try to fix the mess of those generators that do stuff like this:
+If it encounters an invalid rfc822/2822 daytime it tries to fix it first before returning Errors. 
+
+This crates soul purpose is to try to fix the mess of the generators that do stuff like this:
 
 `Thu, 05 Aug 2016 06:00:00 -0400`
 
@@ -40,7 +42,7 @@ Err(ParseError(Invalid))
 
 * The forth `30 Aug 2017 1:30:00 PDT` uses single digit notation for Hour.
 
-The dates above have been encountered while trying to parse rss feeds from the wild west eer A Internet.
+The dates above have been encountered while trying to parse rss feeds from the wild west eer the Internet.
 
 The [RSS spec](http://www.rssboard.org/rss-specification#optionalChannelElements) specifies the use of RFC822 for the date format, which is forward compatible with RFC2822. This crate proves that people/generators still get wrong a format witch was published in 1982.
 

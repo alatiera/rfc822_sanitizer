@@ -9,6 +9,9 @@ use chrono::{DateTime, FixedOffset, ParseResult};
 use std::borrow::Cow;
 use regex::Regex;
 
+/// Tries to fix common ways date generators misshandle rfc822/rfc2822.
+///
+/// For more check the source code, Its ~70 lines of code.
 pub fn sanitize_rfc822_like_date<S: Into<String>>(s: S) -> String {
     let s = s.into();
     let s = pad_zeros(s);
@@ -111,19 +114,23 @@ fn replace_leading_zeros(s: String) -> String {
     }
 }
 
-/// World is full of broken code and invalid rfc822/rfc2822 daytimes.
-/// Higher order function that does what you wanted not what you said!
-/// If it encounters an invalid daytime input it tries to fix it first.
+
+/// Calls `DateTime::parse_from_rfc2822()`. If it succedes returns,
+/// Else it calls `sanitize_rfc822_like_date` and retries.
 ///
-/// This function acts like the normal `DateTime::parse_from_rfc2822()`
-/// would at first.
+/// Basic usage:
 ///
-/// It calls `DateTime::parse_from_rfc2822()`, if it succedes It returns the
-/// normal result.
+/// ```rust
+/// # extern crate chrono; extern crate rfc822_sanitizer;
+/// # use chrono::DateTime;
+/// # use rfc822_sanitizer::parse_from_rfc2822_with_fallback;
 ///
-/// But if It fails, It will try to sanitize the String s, and fix common ways
-/// date generators misshandle rfc822/rfc2822.
-/// Then try to parse it again as DayTime.
+/// # fn main() {
+/// let bad_input = parse_from_rfc2822_with_fallback("Thu, 05 Aug 2016 06:00:00 -0400");
+/// let correct_result = DateTime::parse_from_rfc2822("Fri, 05 Aug 2016 06:00:00 -0400");
+/// assert_eq!(bad_input, correct_result);
+/// # }
+/// ```
 pub fn parse_from_rfc2822_with_fallback<'s, S: Into<Cow<'s, str>>>(
     s: S,
 ) -> ParseResult<DateTime<FixedOffset>> {
