@@ -1,12 +1,7 @@
-before_script:
-- apt-get update -yqq
+# before_script:
+# - apt-get update -yqq
 # - apt-get install -yqq --no-install-recommends build-essential
 
-# kcov
-- apt-get install -yqq libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libiberty-dev
-
-variables:
-  RUSTFLAGS: "-C link-dead-code"
 
 test:stable:
   # Stable img
@@ -14,11 +9,9 @@ test:stable:
   image: "rust"
   script:
   - rustc --version && cargo --version      # Print version info for debugging
-  - cargo build --all
-  - cargo test --all --verbose
+  - cargo build --all --release
+  - cargo test --all --release --verbose
   # - cargo test --all --verbose --jobs 1
-  after_script:
-  - wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz && tar xzf master.tar.gz && cd kcov-master && mkdir build && cd build && cmake .. && make && make install DESTDIR=../../kcov-build && cd ../.. && rm -rf kcov-master && for file in target/debug/rfc822-*[^\.d]; do mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done && bash <(curl -s https://codecov.io/bash) && echo "Uploaded code coverage"
 
 test:nightly:
   # Nightly
@@ -26,14 +19,33 @@ test:nightly:
   image: "rustlang/rust:nightly"
   script:
   - rustc --version && cargo --version      # Print version info for debugging
-  - cargo build --all
-  - cargo test --all --verbose
+  - cargo build --all --release
+  - cargo test --all --release --verbose
+  - cargo bench
+
+musl:stable:
+  # Stable img
+  # https://hub.docker.com/r/ekidd/rust-musl-builder/
+  image: "ekidd/rust-musl-builder"
+  script:
+  - rustc --version && cargo --version      # Print version info for debugging
+  - cargo build --all --release
+  - cargo test --all --release --verbose
   # - cargo test --all --verbose --jobs 1
-  # - cargo bench
+
+musl:nightly:
+  # Nightly
+  # https://hub.docker.com/r/ekidd/rust-musl-builder/
+  image: "ekidd/rust-musl-builder:nightly"
+  script:
+  - rustc --version && cargo --version      # Print version info for debugging
+  - cargo build --all --release
+  - cargo test --all --release --verbose
+  - cargo bench
 
 # Configure and run rustfmt on nightly
 # Exits and builds fails if on bad format
-test:rustfmt:
+rustfmt:
   image: "rustlang/rust:nightly"
   before_script:
   - export PATH="$PATH:$HOME/.cargo/bin"
@@ -41,10 +53,11 @@ test:rustfmt:
   script:
   - rustc --version && cargo --version
   - cargo fmt --all -- --write-mode=diff
+  allow_failure: true
 
 # Configure and run clippy on nightly
 # Only fails on errors atm.
-test:clippy:
+clippy:
   image: "rustlang/rust:nightly"
   before_script:
   - export PATH="$PATH:$HOME/.cargo/bin"
@@ -52,3 +65,24 @@ test:clippy:
   script:
   - rustc --version && cargo --version
   - cargo clippy --all
+  allow_failure: true
+
+kcov:
+  # Stable img
+  # https://hub.docker.com/_/rust/
+  variables:
+    RUSTFLAGS: "-C link-dead-code"
+  image: "rust"
+  before_script:
+  # kcov
+  - apt-get update -yqq
+  - apt-get install -yqq libcurl4-openssl-dev libelf-dev libdw-dev cmake gcc binutils-dev libiberty-dev
+  script:
+  - rustc --version && cargo --version      # Print version info for debugging
+  - cargo build --all
+  - cargo test --all --verbose
+  # - cargo test --all --verbose --jobs 1
+  allow_failure: true
+  after_script:
+  - wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz && tar xzf master.tar.gz && cd kcov-master && mkdir build && cd build && cmake .. && make && make install DESTDIR=../../kcov-build && cd ../.. && rm -rf kcov-master && for file in target/debug/rfc822_sanitizer-*[^\.d]; do mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done && bash <(curl -s https://codecov.io/bash) && echo "Uploaded code coverage"
+

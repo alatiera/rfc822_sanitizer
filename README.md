@@ -1,4 +1,5 @@
 # RFC822/2822_sanitizer
+[![pipeline status](https://gitlab.com/alatiera/rfc822_sanitizer/badges/master/pipeline.svg)](https://gitlab.com/alatiera/rfc822_sanitizer/commits/master)
 [![Build Status](https://travis-ci.org/alatiera/rfc822_sanitizer.svg?branch=master)](https://travis-ci.org/alatiera/rfc822_sanitizer)
 [![Build status](https://ci.appveyor.com/api/projects/status/1xywfcpygqxlr2ng?svg=true)](https://ci.appveyor.com/project/alatiera/rfc822-sanitizer)
 [![Crates.io](https://img.shields.io/crates/v/rfc822_sanitizer.svg)](https://crates.io/crates/rfc822_sanitizer)
