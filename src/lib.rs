@@ -1,4 +1,5 @@
 #![recursion_limit = "1024"]
+#![cfg_attr(feature = "cargo-clippy", allow(let_and_return))]
 
 extern crate chrono;
 #[macro_use]
