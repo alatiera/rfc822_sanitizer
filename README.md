@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/alatiera/rfc822_sanitizer/branch/master/graph/badge.svg)](https://codecov.io/gh/alatiera/rfc822_sanitizer)
 [![Dependency Status](https://dependencyci.com/github/alatiera/rfc822_sanitizer/badge)](https://dependencyci.com/github/alatiera/rfc822_sanitizer)
 
-[Documentation](https://docs.rs/rfc822_sanitizer/0.3.2/)
+[Documentation](https://docs.rs/rfc822_sanitizer/)
 
 A helper funtion that does what you wanted not what you said!
 
