@@ -2,46 +2,37 @@
 # - apt-get update -yqq
 # - apt-get install -yqq --no-install-recommends build-essential
 
+.cargo_test_template: &cargo_test
+  stage: test
+  script:
+  - rustc --version && cargo --version
+  - cargo build
+  - cargo test --verbose -- --test-threads=1
+  - cargo test --verbose -- --test-threads=1 --ignored
 
 test:stable:
   # Stable img
   # https://hub.docker.com/_/rust/
   image: "rust"
-  script:
-  - rustc --version && cargo --version      # Print version info for debugging
-  - cargo build --all --release
-  - cargo test --all --release --verbose
-  # - cargo test --all --verbose --jobs 1
+  <<: *cargo_test
 
 test:nightly:
   # Nightly
   # https://hub.docker.com/r/rustlang/rust/
   image: "rustlang/rust:nightly"
-  script:
-  - rustc --version && cargo --version      # Print version info for debugging
-  - cargo build --all --release
-  - cargo test --all --release --verbose
-  - cargo bench
+  <<: *cargo_test
 
 musl:stable:
   # Stable img
   # https://hub.docker.com/r/ekidd/rust-musl-builder/
   image: "ekidd/rust-musl-builder"
-  script:
-  - rustc --version && cargo --version      # Print version info for debugging
-  - cargo build --all --release
-  - cargo test --all --release --verbose
-  # - cargo test --all --verbose --jobs 1
+  <<: *cargo_test
 
 musl:nightly:
   # Nightly
   # https://hub.docker.com/r/ekidd/rust-musl-builder/
   image: "ekidd/rust-musl-builder:nightly"
-  script:
-  - rustc --version && cargo --version      # Print version info for debugging
-  - cargo build --all --release
-  - cargo test --all --release --verbose
-  - cargo bench
+  <<: *cargo_test
 
 # Configure and run rustfmt on nightly
 # Exits and builds fails if on bad format
@@ -49,7 +40,7 @@ rustfmt:
   image: "rustlang/rust:nightly"
   before_script:
   - export PATH="$PATH:$HOME/.cargo/bin"
-  - which rustfmt || cargo install rustfmt-nightly
+  - cargo install rustfmt-nightly --force
   script:
   - rustc --version && cargo --version
   - cargo fmt --all -- --write-mode=diff
@@ -61,7 +52,7 @@ clippy:
   image: "rustlang/rust:nightly"
   before_script:
   - export PATH="$PATH:$HOME/.cargo/bin"
-  - which rustfmt || cargo install clippy
+  - cargo install clippy --force
   script:
   - rustc --version && cargo --version
   - cargo clippy --all

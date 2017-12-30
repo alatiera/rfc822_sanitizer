@@ -115,7 +115,6 @@ fn replace_leading_zeros(s: String) -> String {
     }
 }
 
-
 /// Calls `DateTime::parse_from_rfc2822()`. If it succedes returns,
 /// Else it calls `sanitize_rfc822_like_date` and retries.
 ///
@@ -148,7 +147,6 @@ pub fn parse_from_rfc2822_with_fallback<'s, S: Into<Cow<'s, str>>>(
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -424,7 +422,6 @@ mod tests {
         });
     }
 
-
     #[test]
     fn test_sanitize_rfc822_like_date() {
         // left is raw date extracted from rss feeds.
@@ -686,9 +683,9 @@ mod tests {
             ),
         ];
 
-        dates.iter().for_each(|&(bad, good)| {
-            assert_eq!(sanitize_rfc822_like_date(bad.to_string()), good)
-        });
+        dates
+            .iter()
+            .for_each(|&(bad, good)| assert_eq!(sanitize_rfc822_like_date(bad.to_string()), good));
     }
 
     #[test]
@@ -962,9 +959,8 @@ mod tests {
             ),
         ];
 
-        foo.iter().for_each(|&(bad, good)| {
-            assert_eq!(remove_weekday(bad.to_string()), good)
-        });
+        foo.iter()
+            .for_each(|&(bad, good)| assert_eq!(remove_weekday(bad.to_string()), good));
     }
 
     #[test]
@@ -1531,9 +1527,8 @@ mod tests {
             ),
         ];
 
-        foo.iter().for_each(|&(bad, good)| {
-            assert_eq!(replace_month(bad.to_string()), good)
-        });
+        foo.iter()
+            .for_each(|&(bad, good)| assert_eq!(replace_month(bad.to_string()), good));
     }
 
     #[test]
@@ -1813,8 +1808,7 @@ mod tests {
             ),
         ];
 
-        foo.iter().for_each(|&(bad, good)| {
-            assert_eq!(replace_leading_zeros(bad.to_string()), good)
-        });
+        foo.iter()
+            .for_each(|&(bad, good)| assert_eq!(replace_leading_zeros(bad.to_string()), good));
     }
 }
