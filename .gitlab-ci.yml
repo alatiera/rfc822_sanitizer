@@ -51,10 +51,11 @@ rustfmt:
 clippy:
   image: "rustlang/rust:nightly"
   before_script:
-  - export PATH="$PATH:$HOME/.cargo/bin"
-  - cargo install clippy --force
+  - rustup component add clippy-preview
+  - rustc --version 
+  - cargo --version
+  - cargo clippy --version  
   script:
-  - rustc --version && cargo --version
   - cargo clippy --all
   allow_failure: true
 
