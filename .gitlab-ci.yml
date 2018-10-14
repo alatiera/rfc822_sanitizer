@@ -39,11 +39,12 @@ musl:nightly:
 rustfmt:
   image: "rustlang/rust:nightly"
   before_script:
-  - export PATH="$PATH:$HOME/.cargo/bin"
-  - cargo install rustfmt-nightly --force
+  - rustup component add rustfmt-preview
+  - rustc --version 
+  - cargo --version
+  - cargo fmt --version  
   script:
-  - rustc --version && cargo --version
-  - cargo fmt --all -- --write-mode=diff
+  - cargo fmt --all -- --check
   allow_failure: true
 
 # Configure and run clippy on nightly
