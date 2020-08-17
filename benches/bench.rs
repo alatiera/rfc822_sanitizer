@@ -3,9 +3,9 @@ extern crate chrono;
 extern crate rfc822_sanitizer;
 extern crate test;
 
-use test::Bencher;
-use rfc822_sanitizer::*;
 use chrono::DateTime;
+use rfc822_sanitizer::*;
+use test::Bencher;
 
 static VALID_DATES: &[&str] = &[
     "Mon, 10 Jul 2017 16:00:00 -0700",

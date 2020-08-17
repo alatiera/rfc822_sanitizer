@@ -7,8 +7,8 @@ extern crate lazy_static;
 extern crate regex;
 
 use chrono::{DateTime, FixedOffset, ParseResult};
-use std::borrow::Cow;
 use regex::Regex;
+use std::borrow::Cow;
 
 /// Tries to fix common ways date generators misshandle rfc822/rfc2822.
 ///
@@ -967,12 +967,10 @@ mod tests {
     fn test_pad_zeros() {
         // Would be nice If we had more test cases,
         // If you stumble(d) upon any online please consider opening a Pullrequest.
-        let foo = vec![
-            (
-                "Thu, 30 Aug 2017 1:30:00 PDT",
-                "Thu, 30 Aug 2017 01:30:00 PDT",
-            ),
-        ];
+        let foo = vec![(
+            "Thu, 30 Aug 2017 1:30:00 PDT",
+            "Thu, 30 Aug 2017 01:30:00 PDT",
+        )];
 
         foo.iter()
             .for_each(|&(bad, good)| assert_eq!(pad_zeros(bad.to_string()), good));
