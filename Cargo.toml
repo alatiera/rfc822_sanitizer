@@ -1,6 +1,6 @@
 [package]
 name = "rfc822_sanitizer"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["Jordan Petridis <jordanpetridis@protonmail.com>"]
 description = "rfc822/2822 sanitizer/normalizer."
 repository = "https://gitlab.com/alatiera/rfc822_sanitizer"
@@ -12,9 +12,9 @@ keywords = ["rfc822", "rfc2822", "sanitizer"]
 categories = ["date-and-time"]
 
 [dependencies]
-chrono = "0.4"
-regex = "0.2"
-lazy_static = "0.2.9"
+chrono = "0.4.15"
+regex = "1.3.9"
+lazy_static = "1.4.0"
 
 [badges]
 travis-ci = { repository = "alatiera/rfc822_sanitizer", branch = "master"}
