@@ -28,12 +28,6 @@ musl:stable:
   image: "ekidd/rust-musl-builder"
   <<: *cargo_test
 
-musl:nightly:
-  # Nightly
-  # https://hub.docker.com/r/ekidd/rust-musl-builder/
-  image: "ekidd/rust-musl-builder:nightly"
-  <<: *cargo_test
-
 # Configure and run rustfmt on nightly
 # Exits and builds fails if on bad format
 rustfmt:
