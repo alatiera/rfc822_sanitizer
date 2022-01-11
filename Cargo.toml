@@ -10,6 +10,7 @@ readme = "README.md"
 license = "GPL-3.0+"
 keywords = ["rfc822", "rfc2822", "sanitizer"]
 categories = ["date-and-time"]
+edition = "2021"
 
 [dependencies]
 chrono = "0.4.19"

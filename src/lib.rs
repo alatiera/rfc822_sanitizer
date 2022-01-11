@@ -1,12 +1,8 @@
 #![recursion_limit = "1024"]
 #![cfg_attr(feature = "cargo-clippy", allow(let_and_return))]
 
-extern crate chrono;
-#[macro_use]
-extern crate lazy_static;
-extern crate regex;
-
 use chrono::{DateTime, FixedOffset, ParseResult};
+use lazy_static::lazy_static;
 use regex::Regex;
 use std::borrow::Cow;
 
@@ -1825,5 +1821,4 @@ mod tests {
             parse_from_rfc2822_with_fallback(foo).unwrap();
         }
     }
-
 }
