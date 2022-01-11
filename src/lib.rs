@@ -22,7 +22,7 @@ pub fn sanitize_rfc822_like_date<S: Into<String>>(s: S) -> String {
     s
 }
 
-/// Pad HH:MM:SS with exta zeros if needed.
+/// Pad HH:MM:SS with extra zeros if needed.
 fn pad_zeros(s: String) -> String {
     lazy_static! {
         /// If it matchers a pattern of 2:2:2, return.
@@ -966,7 +966,7 @@ mod tests {
     #[test]
     fn test_pad_zeros() {
         // Would be nice If we had more test cases,
-        // If you stumble(d) upon any online please consider opening a Pullrequest.
+        // If you stumble(d) upon any online please consider opening a Merge Request.
         let foo = vec![(
             "Thu, 30 Aug 2017 1:30:00 PDT",
             "Thu, 30 Aug 2017 01:30:00 PDT",
