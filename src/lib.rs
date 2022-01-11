@@ -1809,4 +1809,21 @@ mod tests {
         foo.iter()
             .for_each(|&(bad, good)| assert_eq!(replace_leading_zeros(bad.to_string()), good));
     }
+
+    #[test]
+    fn test_readme() {
+        // Would be nice If we had more test cases,
+        // If you stumble(d) upon any online please consider opening a Merge Request.
+        let dates = vec![
+            "Thu, 05 Aug 2016 06:00:00 -0400",
+            "Mon, 31 July 2017 16:00:00 PDT",
+            "Wed, 20 Sep 2017 10:00:00 -0000",
+            "30 Aug 2017 1:30:00 PDT",
+        ];
+
+        for foo in dates {
+            parse_from_rfc2822_with_fallback(foo).unwrap();
+        }
+    }
+
 }
