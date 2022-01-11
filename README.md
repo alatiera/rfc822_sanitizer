@@ -8,7 +8,7 @@
 
 [Documentation](https://docs.rs/rfc822_sanitizer/)
 
-A helper funtion that does what you wanted not what you said!
+A helper function that does what you wanted not what you said!
 
 The world is full of broken code and everyone seem to reinvent daytimes.
 
