@@ -89,7 +89,7 @@ Ok(2017-08-30T01:30:00-07:00)
 Though keep in mind that it would consume more resources.
 
 ```shell
-$ cargo bench -q
+$ cargo +nightly bench -q
 running 4 tests
 test bench_correct_dates_normal_parse        ... bench:      20,741 ns/iter (+/- 1,000)
 test bench_correct_dates_with_fallback       ... bench:      21,133 ns/iter (+/- 282)
