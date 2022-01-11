@@ -54,7 +54,7 @@ Now if we were to use the sanitizer, we would actually get a correct datetime.
 Add the following to your Cargo.toml.
 ```toml
 [dependencies]
-rfc822_sanitizer = "0.3.2"
+rfc822_sanitizer = "0.3"
 ```
 
 ### from [`examples/simple.rs`](examples/simple.rs)
