@@ -1,6 +1,6 @@
 [package]
 name = "rfc822_sanitizer"
-version = "0.3.5"
+version = "0.3.6"
 authors = ["Jordan Petridis <jpetridis@gnome.org>"]
 description = "rfc822/2822 sanitizer/normalizer."
 repository = "https://gitlab.com/alatiera/rfc822_sanitizer"
