@@ -1,5 +1,4 @@
 #![recursion_limit = "1024"]
-#![cfg_attr(feature = "cargo-clippy", allow(let_and_return))]
 
 use chrono::{DateTime, FixedOffset, ParseResult};
 use lazy_static::lazy_static;
@@ -9,6 +8,7 @@ use std::borrow::Cow;
 /// Tries to fix common ways date generators misshandle rfc822/rfc2822.
 ///
 /// For more check the source code, Its ~70 lines of code.
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::let_and_return))]
 pub fn sanitize_rfc822_like_date<S: Into<String>>(s: S) -> String {
     let s = s.into();
     let s = pad_zeros(s);
@@ -34,7 +34,7 @@ fn pad_zeros(s: String) -> String {
 
     if let Some(cap) = RE_RGX.captures(&s) {
         let mut tm = String::with_capacity(2 + 1 + 2 + 1 + 2 + 1);
-        cap.iter().skip(1).filter_map(|m| m).for_each(|mtch| {
+        cap.iter().skip(1).flatten().for_each(|mtch| {
             let m_str = mtch.as_str();
             if m_str.len() == 1 {
                 tm.push('0');
